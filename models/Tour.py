@@ -1,12 +1,15 @@
 from app import db, ma
-from datetime import DateTime
+from datetime import datetime
+
+from models import Iteninary
 class Tour(db.Model):
     __tablename__ = 'tour'
-    tour_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     iteninary_id = db.Column(db.Integer, db.ForeignKey('iteninary.id'), nullable=False)
+
 
     def __init__(self, start_date, end_date, order_id, iteninary_id):
         self.start_date = start_date

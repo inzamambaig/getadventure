@@ -1,6 +1,8 @@
 from models.Iteninary import Iteninary
 from app import db, ma
 
+from models import Iteninary, License
+
 class TourOperator(db.Model):
     __tablename__ = 'touroperator'
     id = db.Column(db.Integer, primary_key=True)
@@ -10,7 +12,7 @@ class TourOperator(db.Model):
     phone = db.Column(db.String(15), nullable=False, unique=True)
     country = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(100), nullable=False)
-    zip_code = db.Integer(db.Integer, nullable=False)
+    zip_code = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(15), nullable=False)
     address = db.Column(db.String(255), nullable=False)
     website = db.Column(db.String(100))

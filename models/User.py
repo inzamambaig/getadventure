@@ -3,6 +3,13 @@ from enum import unique
 from sqlalchemy.orm import backref
 from app import db, ma
 from datetime import datetime
+from models import Group, Order, Passport
+
+# M User ---> M Group
+groups = db.Table('groups', 
+db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True), 
+db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
+)
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -20,7 +27,7 @@ class User(db.Model):
     # cnic = db.Column(db.Integer)
     passport = db.relationship('Passport', backref='user', uselist=False, lazy=True)
     groups = db.relationship('Group', secondary=groups, lazy='subquery',
-        backref=db.backref('order', lazy=True))
+        backref=db.backref('user', lazy=True))
     orders = db.relationship('Order', backref='user', lazy=True)
     
 
@@ -35,12 +42,6 @@ class User(db.Model):
         self.date_of_birth = date_of_birth
         self.password = password
         self.zip_code = zip_code
-
-# M User ---> M Group
-groups = db.Table('groups', 
-db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True), 
-db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
-)
 
 
 # Schema

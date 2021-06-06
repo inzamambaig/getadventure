@@ -1,6 +1,5 @@
 from app import db, ma
-from datetime import DateTime
-
+from datetime import datetime
 
 class License(db.Model):
     __tablename__ = 'license'
@@ -12,8 +11,7 @@ class License(db.Model):
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
 
-    def __init__(self, id, type, license_number, issue_date, expire_date, tour_operator_id):
-        self.id = id
+    def __init__(self, type, license_number, issue_date, expire_date, tour_operator_id):
         self.type = type
         self.license_number = license_number
         self.issue_date = issue_date

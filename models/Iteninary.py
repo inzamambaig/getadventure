@@ -1,5 +1,6 @@
 from app import db, ma
-from datetime import DateTime
+from datetime import datetime
+from models import Tour, IteninaryDetails
 
 class Iteninary(db.Model):
     __tablename__ = 'iteninary'
@@ -8,7 +9,7 @@ class Iteninary(db.Model):
     type = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(400), nullable=False)
     rating = db.Column(db.Integer)
-    arrival_location = db.Column(db.Column(100), nullable=False)
+    arrival_location = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)

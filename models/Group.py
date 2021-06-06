@@ -1,8 +1,8 @@
 from app import db, ma
 
-class Group(db.Mode):
+class Group(db.Model):
     __tablename__ = 'group'
-    group_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), unique=True, nullable=False)
 
 
@@ -14,7 +14,7 @@ class Group(db.Mode):
 # Schema
 class GroupSchema(ma.Schema):
     class Meta:
-        fields = ('group_id', 'group_name')
+        fields = ('id', 'group_name')
 
 
 # Initiliaze Schema

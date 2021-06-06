@@ -1,8 +1,10 @@
 from app import db, ma
 
+from models import Tour
+
 class Order(db.Model):
     __tablename__ = 'order'
-    order_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     total_price = db.Column(db.Float)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tours = db.relationship('Tour', backref='order', lazy=True)

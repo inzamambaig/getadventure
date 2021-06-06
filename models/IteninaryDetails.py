@@ -1,7 +1,7 @@
 from app import db, ma
 
 class IteninaryDetails(db.Model):
-    __tablename__ = 'iterninarydetails'
+    __tablename__ = 'iteninarydetails'
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Integer)
     description = db.Column(db.String(700), nullable=False)

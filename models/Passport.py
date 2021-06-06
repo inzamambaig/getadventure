@@ -1,14 +1,13 @@
 from sqlalchemy.orm import backref
 from app import db, ma
-from datetime import DateTime
-
+from datetime import datetime
 
 class Passport(db.Model):
     __tablename__ = 'passport'
     id = db.Column(db.Integer, primary_key=True)
     passport_number = db.Column(db.String(100), unique=True)
-    issue_date = db.Column(db.DateTime)
-    expiry_date = db.Column(db.DateTime)
+    issue_date = db.Column(db.DateTime, nullable=False)
+    expiry_date = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
