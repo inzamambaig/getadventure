@@ -1,9 +1,31 @@
 from app import app, db
 from flask import jsonify, request
+from models import User
+
 
 @app.route('/', methods=['GET'])
 def get():
     return jsonify({'msg': 'hello world'})
+
+
+
+""" 
+USER
+"""
+
+# Get a Single User
+@app.route('/user/<id>', methods=['GET'])
+def get_user(id):
+    user = User.query.get(id)
+    return User.users_schema.jsonify(user)
+    
+
+# # Get a Single Item
+# @app.route('/check/<id>', methods=['GET'])
+# def get_single_product(id):
+#     single_product = Deez.Check.query.get(id)
+
+#     return Deez.check_schema.jsonify(single_product)
 
 # # Create SINGLE data
 # @app.route("/check", methods=['POST'])
@@ -63,8 +85,4 @@ def get():
 
 #     return Deez.check_schema.jsonify(product)
 
-
-# Run Server
-if __name__ == '__main__':
-    app.run()
 

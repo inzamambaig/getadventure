@@ -1,7 +1,7 @@
 from enum import unique
-
 from sqlalchemy.orm import backref
-from app import db, ma
+# from app import db, ma
+from app import *
 from datetime import datetime
 from models import Group, Order, Passport
 
