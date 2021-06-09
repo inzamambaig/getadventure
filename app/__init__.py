@@ -15,4 +15,4 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 from app import routes
-# from models import *
+from app import models

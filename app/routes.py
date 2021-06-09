@@ -1,6 +1,6 @@
 from app import app, db
-from flask import jsonify, request
-from models import User
+from flask import json, jsonify, request
+from app.models import User, user_schema, users_schema
 
 
 @app.route('/', methods=['GET'])
@@ -14,10 +14,11 @@ USER
 """
 
 # Get a Single User
-@app.route('/user/<id>', methods=['GET'])
-def get_user(id):
-    user = User.query.get(id)
-    return User.users_schema.jsonify(user)
+@app.route('/users', methods=['GET'])
+def get_user():
+    users = User.query.all()
+    users_list = users_schema.dump(users)
+    return jsonify(users_list)
     
 
 # # Get a Single Item
