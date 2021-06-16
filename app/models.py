@@ -3,7 +3,6 @@ from enum import unique
 from sqlalchemy.orm import backref
 from datetime import datetime
 
-
 # M User ---> M Group
 groups = db.Table('groups', 
 db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True), 
@@ -42,7 +41,6 @@ class User(db.Model):
         self.password = password
         self.zip_code = zip_code
 
-
 # Schema
 class UserSchema(ma.Schema):
     class Meta:
@@ -50,8 +48,6 @@ class UserSchema(ma.Schema):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
-
-
 
 class Group(db.Model):
     __tablename__ = 'group'
@@ -62,13 +58,10 @@ class Group(db.Model):
     def __init__(self, group_name):
         self.group_name = group_name
 
-
-
 # Schema
 class GroupSchema(ma.Schema):
     class Meta:
         fields = ('id', 'group_name')
-
 
 # Initiliaze Schema
 
@@ -141,7 +134,7 @@ class IteninaryDetails(db.Model):
         self.dinner = dinner
         self.other_meals = other_meals
         self.iteninary_id = iteninary_id
-        
+
 # Schema
 class IteninaryDetailsSchema(ma.Schema):
     class Meta:
@@ -167,8 +160,6 @@ class License(db.Model):
         self.issue_date = issue_date
         self.expire_date = expire_date
         self.tour_operator_id = tour_operator_id
-
-
 
 # Schema
 class LicenseSchema(ma.Schema):
@@ -272,7 +263,6 @@ class TourOperator(db.Model):
     instagram = db.Column(db.String(100))
     iteninary = db.relationship('Iteninary', backref='touroperator', lazy=True)
     license = db.relationship('License', backref='touroperator', lazy=True)
-
 
     def __init__(self, name, company_name, email, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram):
         self.name = name
