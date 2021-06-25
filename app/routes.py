@@ -4,6 +4,7 @@ from app.models import User, user_schema, users_schema, Group, group_schema, gro
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
 from app.models import Passport, passport_schema, passports_schema, Order, order_schema, orders_schema
 from app.models import IteninaryDetails, iteninary_details, iteninarys_details, License, license_schema, licenses_schema
+from app.models import Tour, tour_schema, tours_schema
 
 
 @app.route('/', methods=['GET'])
@@ -119,7 +120,6 @@ def new_iteninary():
     title = request.json['title']
     type = request.json['type']
     description = request.json['description']
-    destination = request.json['destination']
     title = request.json['title']
     total_days = request.json['total_days']
     rating = request.json['rating']
@@ -152,13 +152,12 @@ def get_iteninary(id):
 
 # Update an iteninary
 @app.route('/iteninary/<id>', methods=['PUT'])
-def update_itinerary(id):
+def update_iteninary(id):
     iteninary = Iteninary.query.get(id)
 
     iteninary.title = request.json['title']
     iteninary.type = request.json['type']
     iteninary.description = request.json['description']
-    iteninary.destination = request.json['destination']
     iteninary.tour_operator_id = request.json['tour_operator_id']
     iteninary.title = request.json['title']
     iteninary.total_days = request.json['total_days']
@@ -358,11 +357,11 @@ def delete_order(id):
 @app.route('/tour', methods = ['POST'])
 def new_tour():
     order_id = request.json['order_id']
-    itenirary_id = request.json['itenirary_id']
+    iteninary_id = request.json['iteninary_id']
     start_date = request.json['start_date']
     end_date = request.json['end_date']
 
-    tour = Tour(order_id, itenirary_id, start_date, end_date)
+    tour = Tour( start_date, end_date, order_id, iteninary_id )
 
     db.session.add(tour)
     db.session.commit()
@@ -375,7 +374,7 @@ def get_tours():
     tours = Tour.query.all()
     tour_list = tours_schema.dump(tours)
 
-    return tours_schema.jsonify(tour_list)
+    return jsonify(tour_list)
 
 # Get a tour
 @app.route('/tour/<id>', methods = ['GET'])
@@ -389,7 +388,7 @@ def update_tour(id):
     tour = Tour.query.get(id)
 
     tour.order_id = request.json['order_id']
-    tour.itenirary_id = request.json['itenirary_id']
+    tour.iteninary_id = request.json['iteninary_id']
     tour.start_date = request.json['start_date']
     tour.end_date = request.json['end_date']
 
@@ -403,10 +402,10 @@ def delete_tour(id):
     db.session.delete(tour)
     db.session.commit()
 
-    return tour.jsonify(tour)
+    return tour_schema.jsonify(tour)
 
 # Create a itenirary_detail
-@app.route('/itenirary_detail', methods = ['POST'])
+@app.route('/iteninary_detail', methods = ['POST'])
 def new_itinerary_detail():
     iteninary_id = request.json.get('iteninary_id')
     day = request.json.get('day')
