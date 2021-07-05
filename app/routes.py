@@ -18,7 +18,7 @@ def identity(payload):
 @app.route('/', methods=['GET'])
 def get():
     return jsonify({'msg': 'hello world'})
-""""
+"""
 """ 
 USER
 """

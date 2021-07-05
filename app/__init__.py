@@ -10,9 +10,11 @@ db = SQLAlchemy(app)
 # Init Marshmallow
 ma = Marshmallow(app)
 
+"""
 # init JWT
 from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.security import safe_str_cmp
+
 
 app.config['SECRET_KEY'] = 'super-secret'
 
@@ -22,6 +24,6 @@ jwt = JWT(app, authenticate, identity)
 @jwt_required()
 def protected():
     return f'{current_identity}'
-
+"""
 from app import routes
 from app import models
