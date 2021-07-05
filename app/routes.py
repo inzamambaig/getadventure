@@ -5,12 +5,20 @@ from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOpera
 from app.models import Passport, passport_schema, passports_schema, Order, order_schema, orders_schema
 from app.models import IteninaryDetails, iteninary_details, iteninarys_details, License, license_schema, licenses_schema
 from app.models import Tour, tour_schema, tours_schema
+"""
+def authenticate(username, password):
+    user = User.query.filter_by(name=username)
+    if user and safe_str_cmp(user.password.encode('utf-8'), password.encode('utf-8')):
+        return user
 
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.get(user_id)
 
 @app.route('/', methods=['GET'])
 def get():
     return jsonify({'msg': 'hello world'})
-
+""""
 """ 
 USER
 """
@@ -442,7 +450,7 @@ def get_iteninary_detail(id):
 @app.route('/iteninary_detail/<id>', methods = ['PUT'])
 def update_itenirary_detail(id):
     iteninarydetail = IteninaryDetails.query.get(id)
-    
+
     iteninarydetail.iteninary_id = request.json.get('iteninary_id')
     iteninarydetail.day = request.json.get('day')
     iteninarydetail.description = request.json.get('description')

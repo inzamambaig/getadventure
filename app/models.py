@@ -2,7 +2,17 @@ from app import db, ma
 from enum import unique
 from sqlalchemy.orm import backref
 from datetime import datetime
+#from app.models import User, user_schema, users_schema, TourOperator, touroperator_schema, touroperators_schema
+"""
+def authenticate(username, password):
+    user = User.query.filter_by(name=username)
+    if user and safe_str_cmp(user.password.encode('utf-8'), password.encode('utf-8')):
+        return user
 
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.get(user_id)
+"""
 # M User ---> M Group
 groups = db.Table('groups', 
 db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True), 
