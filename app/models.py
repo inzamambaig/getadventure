@@ -2,17 +2,7 @@ from app import db, ma
 from enum import unique
 from sqlalchemy.orm import backref
 from datetime import datetime
-#from app.models import User, user_schema, users_schema, TourOperator, touroperator_schema, touroperators_schema
-"""
-def authenticate(username, password):
-    user = User.query.filter_by(name=username)
-    if user and safe_str_cmp(user.password.encode('utf-8'), password.encode('utf-8')):
-        return user
 
-def identity(payload):
-    user_id = payload['identity']
-    return User.query.get(user_id)
-"""
 # M User ---> M Group
 groups = db.Table('groups', 
 db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True), 
@@ -37,7 +27,6 @@ class User(db.Model):
     groups = db.relationship('Group', secondary=groups, lazy='subquery',
         backref=db.backref('user', lazy=True))
     orders = db.relationship('Order', backref='user', lazy=True)
-    
 
     def __init__(self, name, email, phone, country, gender, group, address, date_of_birth, password, zip_code):
         self.name = name
@@ -54,7 +43,7 @@ class User(db.Model):
 # Schema
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'email', 'phone', 'country', 'gender', 'group', 'address', 'date_of_birth', 'zip_code')
+        fields = ('id', 'name', 'email', 'phone', 'country', 'gender', 'group', 'address', 'date_of_birth', 'zip_code', 'password')
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -63,7 +52,6 @@ class Group(db.Model):
     __tablename__ = 'group'
     id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), unique=True, nullable=False)
-
 
     def __init__(self, group_name):
         self.group_name = group_name
@@ -249,7 +237,6 @@ class Tour(db.Model):
 class TourSchema(ma.Schema):
     class Meta:
         fields = ('tour_id', 'start_date', 'end_date', 'order_id', 'iteninary_id')
-
 
 tour_schema = TourSchema()
 tours_schema = TourSchema(many=True)

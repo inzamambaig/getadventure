@@ -1,13 +1,20 @@
 from app import app, db
-from flask import json, jsonify, request
+from flask import json, jsonify, request, make_response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
 from app.models import Passport, passport_schema, passports_schema, Order, order_schema, orders_schema
 from app.models import IteninaryDetails, iteninary_details, iteninarys_details, License, license_schema, licenses_schema
 from app.models import Tour, tour_schema, tours_schema
-"""
+
+from flask_jwt import JWT, jwt_required, current_identity
+from werkzeug.security import safe_str_cmp
+import datetime
+
+app.config['SECRET_KEY'] = 'Getanadventure'
+
 def authenticate(username, password):
-    user = User.query.filter_by(name=username)
+    user = User.query.filter_by(name=username).first()
+    print(user)
     if user and safe_str_cmp(user.password.encode('utf-8'), password.encode('utf-8')):
         return user
 
@@ -15,11 +22,36 @@ def identity(payload):
     user_id = payload['identity']
     return User.query.get(user_id)
 
+jwt = JWT(app, authenticate, identity)
+
+@app.route('/protected')
+@jwt_required()
+def protected():
+    return '%s' % current_identity
+
+
+""""
+@app.route('/login', methods=['GET'])
+def login():
+    username = request.json['username']
+    password = request.json['password']
+
+    user = User.query.filter_by(name=username)
+
+    print(user.name)
+
+    if user and password == '12345678':
+        tocken = jwt.encode({'user': 'The Quick', 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, key = 'Getanadventure')
+
+        return jsonify({'tocken' : tocken.decode('UTF-8')})
+    return make_response('Could not response', 401, {'WWW-Authencate' : 'Basic realm="Login Required"'})
+"""
+
 @app.route('/', methods=['GET'])
 def get():
     return jsonify({'msg': 'hello world'})
+
 """
-""" 
 USER
 """
 
@@ -59,7 +91,7 @@ def get_users():
 @app.route('/user/<id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get(id)
-    
+
     user.name = request.json['name']
     user.address = request.json['address']
     user.country = request.json['country']
