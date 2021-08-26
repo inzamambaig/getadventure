@@ -1,17 +1,50 @@
 from app import app, db
-from flask import json, jsonify, request, make_response
+from flask import Flask, json, jsonify, request, make_response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
 from app.models import Passport, passport_schema, passports_schema, Order, order_schema, orders_schema
 from app.models import IteninaryDetails, iteninary_details, iteninarys_details, License, license_schema, licenses_schema
 from app.models import Tour, tour_schema, tours_schema
 
-from flask_jwt import JWT, jwt_required, current_identity
+#from flask_jwt import JWT, jwt_required, current_identity
+
+#import jwt
+
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+from datetime import datetime, timedelta
 from werkzeug.security import safe_str_cmp
+from functools import wraps
 import datetime
+from flask_bcrypt import Bcrypt
 
-app.config['SECRET_KEY'] = 'Getanadventure'
+KEY = 'Getanadventure'  #constant key declaration
 
+app.config['SECRET_KEY'] = KEY
+#app = Flask(__name__)
+bcrypt = Bcrypt(app)
+
+jwt = JWTManager(app)
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    username = request.json['username']
+    password = request.json['password']
+
+    user = User.query.filter_by(name=username).first()
+
+    if bcrypt.check_password_hash( user.password, password ):#user and 
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token = access_token)
+    else:
+        return jsonify({"msg" : "Bed username or password"})
+
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
+
+"""
 def authenticate(username, password):
     user = User.query.filter_by(name=username).first()
     if user and safe_str_cmp(user.password.encode('utf-8'), password.encode('utf-8')):
@@ -21,15 +54,44 @@ def identity(payload):
     user_id = payload['identity']
     return User.query.get(user_id)
 
+@app.route('/login')
+def login():
+    auth = request.authorization
+
+    if auth and auth.password == 'password':
+        token = jwt.encode({ 'user' : auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30) }, app.config['SECRET_KEY'])
+
+        return jsonify('token', token.decode('utf-8'))
+
+    return make_response('could not verified', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+
+    return jsonify({'token', token.decode('UTF-8')})
+
+
+def token_required(f):
+    @wraps(f)
+    def decoreted(*args, **kwargs):
+        token = None
+        
+        token = request.json.get('token')
+        if not token:
+            return jsonify({'message' : 'Token is missing!'}), 403
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])                  #to check whether token is valid
+        except:
+            return jsonify({'message' : 'Token is invalid!'}), 403
+
+        return f(*args, **kwargs)
+    return decoreted
+
+
 jwt = JWT(app, authenticate, identity)
 
 @app.route('/protected')
-@jwt_required()
 def protected():
     return '%s' % current_identity
 
-
-""""
 @app.route('/login', methods=['GET'])
 def login():
     username = request.json['username']
@@ -54,6 +116,21 @@ def get():
 USER
 """
 
+#Sign Up
+@app.route('/signup', methods=['POST'])
+def signup():
+    name = request.json['name']
+    email = request.json['email']
+    password = request.json['password']
+
+    hashed = bcrypt.generate_password_hash(password, 19).decode('utf8')
+
+    new_user = User( name, email, None, None, None, False, None, None, hashed, None)
+
+    db.session.add(new_user)
+    db.session.commit()
+    return user_schema.jsonify(new_user)
+
 # Create new user
 @app.route('/user', methods=['POST'])
 def new_user():
@@ -66,9 +143,9 @@ def new_user():
     group = request.json['group']
     phone = request.json['phone']
     zip_code = request.json['zip_code']
-    
+
     new_user = User( name, email, phone, country, gender, group, address, date_of_birth, password, zip_code)
- 
+
     db.session.add(new_user)
     db.session.commit()
     return user_schema.jsonify(new_user)
@@ -241,22 +318,22 @@ def new_touroperator():
     touroperator = TourOperator(name, company_name, email, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram)
     db.session.add(touroperator)
     db.session.commit()
-    
+
     return touroperator_schema.jsonify(touroperator)
- 
+
 # get a Tour Operator list
 @app.route('/touroperator', methods=['GET'])
 def get_touroperators():
     touroperators = TourOperator.query.all()
     touroperator_list = touroperators_schema .dump(touroperators)
     return jsonify(touroperator_list)
- 
+
 # Get a single Tour Operator
 @app.route('/touroperator/<id>', methods=['GET'])
 def get_touroperator(id):
     touroperator = TourOperator.query.get(id)
     return touroperator_schema.jsonify(touroperator)
- 
+
 # Update a Tour Operator
 @app.route('/touroperator/<id>', methods=['PUT'])
 def update_touroperator(id):
@@ -289,7 +366,7 @@ def delete_touroperator(id):
 
     db.session.delete(touroperator)
     db.session.commit()
-    
+
     return touroperator_schema.jsonify(touroperator)
 
 # Create a Passport
@@ -374,12 +451,11 @@ def get_orders():
 # update an order
 @app.route('/order/<id>', methods = ['PUT'])
 def update_order(id):
-    
     order = Order.query.get(id)
     order.total_price = request.json['total_price']
 
     db.session.commit()
-    
+
     return order_schema.jsonify(order)
 
 # Delete an order
@@ -437,7 +513,7 @@ def update_tour(id):
 @app.route('/tour/<id>', methods = ['DELETE'])
 def delete_tour(id):
     tour = Tour.query.get(id)
-    
+
     db.session.delete(tour)
     db.session.commit()
 

@@ -13,15 +13,17 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(50), nullable=False, unique=True)
-    phone = db.Column(db.String(15), nullable=False, unique=True)
-    country = db.Column(db.String(30), nullable=False)
-    gender = db.Column(db.String(10), nullable=False)
-    group = db.Column(db.Boolean, default=False, nullable=False)
-    address = db.Column(db.String(300), nullable=False)
-    date_of_birth = db.Column(db.DateTime, nullable=False)
+    email = db.Column(db.String(50), nullable=True, unique=True)
+    phone = db.Column(db.String(15), nullable=True, unique=True)
+    country = db.Column(db.String(30), nullable=True)
+    gender = db.Column(db.String(10), nullable=True)
+    group = db.Column(db.Boolean, default=False, nullable=True)
+    address = db.Column(db.String(300), nullable=True)
+    date_of_birth = db.Column(db.DateTime, nullable=True)
     password = db.Column(db.String(255), nullable=False)
-    zip_code = db.Column(db.Integer, nullable=False)
+    zip_code = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     # cnic = db.Column(db.Integer)
     passport = db.relationship('Passport', backref='user', uselist=False, lazy=True)
     groups = db.relationship('Group', secondary=groups, lazy='subquery',
@@ -66,8 +68,6 @@ class GroupSchema(ma.Schema):
 group_schema = GroupSchema()
 groups_schema = GroupSchema(many=True)
 
-
-
 class Iteninary(db.Model):
     __tablename__ = 'iteninary'
     id = db.Column(db.Integer, primary_key=True)
@@ -86,7 +86,6 @@ class Iteninary(db.Model):
         nullable=False)
     tour = db.relationship('Tour', backref='iteninary', lazy=True)
     iteninary_details = db.relationship('IteninaryDetails', backref='iteninary', lazy=True)
-
 
     def __init__(self, title, type, description, rating, arrival_location, price, start_date, end_date, total_days, booked, hero_images, tour_operator_id):
         self.title = title
@@ -138,7 +137,6 @@ class IteninaryDetailsSchema(ma.Schema):
     class Meta:
         fields = ('id', 'day', 'description', 'accomodation', 'breakfast', 'lunch', 'dinner', 'other_meals', 'iteninary_id')
 
-
 iteninary_details = IteninaryDetailsSchema()
 iteninarys_details = IteninaryDetailsSchema(many=True)
 
@@ -168,7 +166,6 @@ class LicenseSchema(ma.Schema):
 license_schema = LicenseSchema()
 licenses_schema = LicenseSchema(many=True)
 
-
 class Order(db.Model):
     __tablename__ = 'order'
     id = db.Column(db.Integer, primary_key=True)
@@ -176,18 +173,14 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tours = db.relationship('Tour', backref='order', lazy=True)
 
-
-
     def __init__(self, total_price, user_id):
         self.total_price = total_price
         self.user_id = user_id
-
 
 # Schema
 class OrderSchema(ma.Schema):
     class Meta:
         fields = ('total_price', 'user_id')
-
 
 # Initiliaze Schema
 order_schema = OrderSchema()
@@ -201,19 +194,16 @@ class Passport(db.Model):
     expiry_date = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-
     def __init__(self, passport_number, issue_date, expiry_date, user_id):
         self.passport_number = passport_number
         self.issue_date = issue_date
         self.expiry_date = expiry_date
         self.user_id = user_id
 
-
 # Schema
 class PassportSchema(ma.Schema):
     class Meta:
         fields = ('id', 'passport_number', 'issue_date', 'expiry_date', 'user_id')
-
 
 # Initiliaze Schema
 passport_schema = PassportSchema()
