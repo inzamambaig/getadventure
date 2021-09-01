@@ -84,6 +84,8 @@ class Iteninary(db.Model):
     hero_images = db.Column(db.String(300))
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     tour = db.relationship('Tour', backref='iteninary', lazy=True)
     iteninary_details = db.relationship('IteninaryDetails', backref='iteninary', lazy=True)
 
@@ -120,6 +122,8 @@ class IteninaryDetails(db.Model):
     lunch = db.Column(db.String(255))
     dinner = db.Column(db.String(255))
     other_meals = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     iteninary_id = db.Column(db.Integer, db.ForeignKey('iteninary.id'), nullable=False)
 
     def __init__(self, day, description, accomodation, breakfast, lunch, dinner, other_meals, iteninary_id):
@@ -149,6 +153,8 @@ class License(db.Model):
     expire_date = db.Column(db.DateTime, nullable=False)
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
 
     def __init__(self, type, license_number, issue_date, expire_date, tour_operator_id):
         self.type = type
@@ -170,6 +176,8 @@ class Order(db.Model):
     __tablename__ = 'order'
     id = db.Column(db.Integer, primary_key=True)
     total_price = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tours = db.relationship('Tour', backref='order', lazy=True)
 
@@ -192,6 +200,8 @@ class Passport(db.Model):
     passport_number = db.Column(db.String(100), unique=True)
     issue_date = db.Column(db.DateTime, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __init__(self, passport_number, issue_date, expiry_date, user_id):
@@ -214,6 +224,8 @@ class Tour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     iteninary_id = db.Column(db.Integer, db.ForeignKey('iteninary.id'), nullable=False)
 
@@ -248,6 +260,8 @@ class TourOperator(db.Model):
     linkedin = db.Column(db.String(100))
     twitter = db.Column(db.String(100))
     instagram = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, default = datetime.now)
+    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     iteninary = db.relationship('Iteninary', backref='touroperator', lazy=True)
     license = db.relationship('License', backref='touroperator', lazy=True)
 

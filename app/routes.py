@@ -34,7 +34,12 @@ def signin():
 
     if bcrypt.check_password_hash( user.password, password ):#user and 
         access_token = create_access_token(identity=user.id)
-        return jsonify(access_token = access_token)
+        return jsonify(
+            status = 200,
+            message = 'login successful',
+            access_token = access_token,
+            user = user
+            )
     else:
         return jsonify({"msg" : "Bed username or password"})
 
@@ -144,7 +149,7 @@ def new_user():
     phone = request.json['phone']
     zip_code = request.json['zip_code']
 
-    new_user = User( name, email, phone, country, gender, group, address, date_of_birth, password, zip_code)
+    new_user = User( name, email, phone, country, gender, group, address, date_of_birth, "", zip_code)
 
     db.session.add(new_user)
     db.session.commit()
@@ -180,7 +185,7 @@ def update_user(id):
 
     db.session.commit()
 
-    return jsonify(user)
+    return user_schema.jsonify(user)
 
 # Delete a user
 @app.route('/user/<id>', methods=['DELETE'])
