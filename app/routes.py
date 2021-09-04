@@ -293,22 +293,23 @@ def new_iteninary():
     db.session.commit()
     return iteninary_schema.jsonify(iteninary)
 
+# Get Single iteninaries
+
+
+@app.route('/iteninary/<id>', methods=['GET'])
+def get_iteninaries(id):
+    iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
+    iteninary_list = iteninarys_schema.dump(iteninary)
+    return jsonify(iteninary_list)
+
 # Get All iteninaries
 
 
 @app.route('/iteninary', methods=['GET'])
-def get_iteninaries():
+def get_all_iteninaries():
     iteninary = Iteninary.query.all()
     iteninary_list = iteninarys_schema.dump(iteninary)
     return jsonify(iteninary_list)
-
-# Get Single iteninary
-
-
-@app.route('/iteninary/<id>', methods=['GET'])
-def get_iteninary(id):
-    iteninary = Iteninary.query.get(id)
-    return iteninary_schema.jsonify(iteninary)
 
 # Update an iteninary
 
@@ -343,7 +344,7 @@ def delete_itinerary(id):
     db.session.delete(iteninary)
     db.session.commit()
 
-    return iteninary_schema.jsonify(iteninary)
+    return ({"id": id, "message": "deleted"})
 
 # Create new Tour Operator
 
@@ -627,7 +628,12 @@ def new_itinerary_detail():
     db.session.add(iteninarydetail)
     db.session.commit()
 
-    return iteninary_details.jsonify(iteninarydetail)
+    # return iteninary_details.jsonify(iteninarydetail)
+
+    return ({
+        "status": 200,
+        "message": "Details Added Succesfully"
+    })
 
 # get all iteninary_delails
 
