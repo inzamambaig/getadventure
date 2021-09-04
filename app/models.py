@@ -1,7 +1,8 @@
-from app import db, ma
+from app import db, ma, bcrypt
 from enum import unique
 from sqlalchemy.orm import backref
 from datetime import datetime
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # M User ---> M Group
 groups = db.Table('groups', 
@@ -39,7 +40,7 @@ class User(db.Model):
         self.group = group
         self.address = address
         self.date_of_birth = date_of_birth
-        self.password = password
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.zip_code = zip_code
 
 # Schema

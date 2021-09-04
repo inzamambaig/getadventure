@@ -32,16 +32,19 @@ def signin():
 
     user = User.query.filter_by(name=username).first()
 
-    if bcrypt.check_password_hash( user.password, password ):#user and 
+    if (bcrypt.check_password_hash( user.password, password )):#user and 
         access_token = create_access_token(identity=user.id)
         return jsonify(
-            status = 200,
-            message = 'login successful',
-            access_token = access_token,
-            user = user
+            {
+            "status" : 200,
+            "message" : "login successful",
+            "access_token" : access_token,
+            "user" : "user"
+            }
             )
     else:
         return jsonify({"msg" : "Bed username or password"})
+
 
 @app.route("/protected", methods=["GET"])
 @jwt_required()
@@ -128,9 +131,9 @@ def signup():
     email = request.json['email']
     password = request.json['password']
 
-    hashed = bcrypt.generate_password_hash(password, 19).decode('utf8')
+#    hashed = bcrypt.generate_password_hash(password, 19).decode('utf8')
 
-    new_user = User( name, email, None, None, None, False, None, None, hashed, None)
+    new_user = User( name, email, None, None, None, False, None, None, password, None)
 
     db.session.add(new_user)
     db.session.commit()
