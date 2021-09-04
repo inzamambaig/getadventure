@@ -31,6 +31,8 @@ class User(db.Model):
         backref=db.backref('user', lazy=True))
     orders = db.relationship('Order', backref='user', lazy=True)
 
+
+
     def __init__(self, name, email, phone, country, gender, group, address, date_of_birth, password, zip_code):
         self.name = name
         self.email = email
@@ -250,6 +252,7 @@ class TourOperator(db.Model):
     name = db.Column(db.String(255), nullable=False)
     company_name = db.Column(db.String(255), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(15), nullable=False, unique=True)
     country = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(100), nullable=False)
@@ -266,13 +269,14 @@ class TourOperator(db.Model):
     iteninary = db.relationship('Iteninary', backref='touroperator', lazy=True)
     license = db.relationship('License', backref='touroperator', lazy=True)
 
-    def __init__(self, name, company_name, email, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram):
+    def __init__(self, name, company_name, email, password, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram):
         self.name = name
         self.company_name = company_name
         self.email = email
         self.phone = phone
         self.country = country
         self.city = city
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.zip_code = zip_code
         self.gender = gender
         self.address = address

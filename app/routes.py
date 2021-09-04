@@ -1,5 +1,5 @@
 from app import app, db
-from flask import Flask, json, jsonify, request, make_response
+from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
 from app.models import Passport, passport_schema, passports_schema, Order, order_schema, orders_schema
@@ -17,7 +17,7 @@ from functools import wraps
 import datetime
 from flask_bcrypt import Bcrypt
 
-KEY = 'Getanadventure'  #constant key declaration
+KEY = 'Getanadventure'  # constant key declaration
 
 app.config['SECRET_KEY'] = KEY
 #app = Flask(__name__)
@@ -25,25 +25,24 @@ bcrypt = Bcrypt(app)
 
 jwt = JWTManager(app)
 
+
 @app.route('/signin', methods=['POST'])
 def signin():
-    username = request.json['username']
+    name = request.json['name']
     password = request.json['password']
 
-    user = User.query.filter_by(name=username).first()
+    user = TourOperator.query.filter_by(name=name).first()
 
-    if (bcrypt.check_password_hash( user.password, password )):#user and 
+    if (bcrypt.check_password_hash(user.password, password)):
         access_token = create_access_token(identity=user.id)
-        return jsonify(
-            {
-            "status" : 200,
-            "message" : "login successful",
-            "access_token" : access_token,
-            "user" : "user"
-            }
-            )
+        return ({
+            "user": touroperator_schema.jsonify(user).get_json(), 
+            "token":  access_token, 
+            "status": 200,
+            "message": "login successful"
+            })
     else:
-        return jsonify({"msg" : "Bed username or password"})
+        return jsonify({"msg": "Bad username or password"})
 
 
 @app.route("/protected", methods=["GET"])
@@ -51,6 +50,7 @@ def signin():
 def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
+
 
 """
 def authenticate(username, password):
@@ -116,30 +116,48 @@ def login():
     return make_response('Could not response', 401, {'WWW-Authencate' : 'Basic realm="Login Required"'})
 """
 
+
 @app.route('/', methods=['GET'])
 def get():
     return jsonify({'msg': 'hello world'})
+
 
 """
 USER
 """
 
-#Sign Up
+# Sign Up
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     name = request.json['name']
+    company_name = request.json['company_name']
     email = request.json['email']
     password = request.json['password']
+    phone = request.json['phone']
+    country = request.json['country']
+    city = request.json['city']
+    zip_code = request.json['zip_code']
+    gender = request.json['gender']
+    address = request.json['address']
+    website = request.json['website']
+    facebook = request.json['facebook']
+    linkedin = request.json['linkedin']
+    twitter = request.json['twitter']
+    instagram = request.json['instagram']
 
 #    hashed = bcrypt.generate_password_hash(password, 19).decode('utf8')
 
-    new_user = User( name, email, None, None, None, False, None, None, password, None)
+    new_tour_operator = TourOperator(name, company_name, email, password, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram)
 
-    db.session.add(new_user)
+    db.session.add(new_tour_operator)
     db.session.commit()
-    return user_schema.jsonify(new_user)
+    return touroperator_schema.jsonify(new_tour_operator)
 
 # Create new user
+
+
 @app.route('/user', methods=['POST'])
 def new_user():
     name = request.json['name']
@@ -152,19 +170,24 @@ def new_user():
     phone = request.json['phone']
     zip_code = request.json['zip_code']
 
-    new_user = User( name, email, phone, country, gender, group, address, date_of_birth, "", zip_code)
+    new_user = User(name, email, phone, country, gender, group,
+                    address, date_of_birth, "", zip_code)
 
     db.session.add(new_user)
     db.session.commit()
     return user_schema.jsonify(new_user)
 
 # Get a single user
+
+
 @app.route('/user/<id>', methods=['GET'])
 def get_user(id):
     user = User.query.get(id)
     return user_schema.jsonify(user)
 
 # Get All Users
+
+
 @app.route('/user', methods=['GET'])
 def get_users():
     users = User.query.all()
@@ -172,6 +195,8 @@ def get_users():
     return jsonify(users_list)
 
 # Update a user
+
+
 @app.route('/user/<id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get(id)
@@ -191,13 +216,17 @@ def update_user(id):
     return user_schema.jsonify(user)
 
 # Delete a user
+
+
 @app.route('/user/<id>', methods=['DELETE'])
 def delete_user(id):
-     user = User.query.get(id)
-     db.session.delete(user)
-     db.session.commit()
+    user = User.query.get(id)
+    db.session.delete(user)
+    db.session.commit()
 
-     return user_schema.jsonify(user)
+    return user_schema.jsonify(user)
+
+
 """
 # Create new group
 @app.route('/group', methods=['POST'])
@@ -239,6 +268,8 @@ def delete_group(id):
     return group_schema.jsonify(group)
 """
 # Create new iteninary
+
+
 @app.route('/iteninary', methods=['POST'])
 def new_iteninary():
     title = request.json['title']
@@ -255,13 +286,16 @@ def new_iteninary():
     hero_images = request.json['hero_images']
     tour_operator_id = request.json['tour_operator_id']
 
-    iteninary = Iteninary(title, type, description, rating, arrival_location, price, start_date, end_date, total_days, booked, hero_images, tour_operator_id)
+    iteninary = Iteninary(title, type, description, rating, arrival_location, price,
+                          start_date, end_date, total_days, booked, hero_images, tour_operator_id)
 
     db.session.add(iteninary)
     db.session.commit()
     return iteninary_schema.jsonify(iteninary)
 
 # Get All iteninaries
+
+
 @app.route('/iteninary', methods=['GET'])
 def get_iteninaries():
     iteninary = Iteninary.query.all()
@@ -269,12 +303,16 @@ def get_iteninaries():
     return jsonify(iteninary_list)
 
 # Get Single iteninary
+
+
 @app.route('/iteninary/<id>', methods=['GET'])
 def get_iteninary(id):
     iteninary = Iteninary.query.get(id)
     return iteninary_schema.jsonify(iteninary)
 
 # Update an iteninary
+
+
 @app.route('/iteninary/<id>', methods=['PUT'])
 def update_iteninary(id):
     iteninary = Iteninary.query.get(id)
@@ -297,6 +335,8 @@ def update_iteninary(id):
     return iteninary_schema.jsonify(iteninary)
 
 # Delete iteninary
+
+
 @app.route('/iteninary/<id>', methods=['DELETE'])
 def delete_itinerary(id):
     iteninary = Iteninary.query.get(id)
@@ -306,6 +346,8 @@ def delete_itinerary(id):
     return iteninary_schema.jsonify(iteninary)
 
 # Create new Tour Operator
+
+
 @app.route('/touroperator', methods=['POST'])
 def new_touroperator():
     name = request.json['name']
@@ -319,17 +361,20 @@ def new_touroperator():
     address = request.json['address']
     website = request.json['website']
     facebook = request.json['facebook']
-    linkedin  = request.json['linkedin']
-    twitter  = request.json['twitter']
+    linkedin = request.json['linkedin']
+    twitter = request.json['twitter']
     instagram = request.json['instagram']
 
-    touroperator = TourOperator(name, company_name, email, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram)
+    touroperator = TourOperator(name, company_name, email, phone, country, city,
+                                zip_code, gender, address, website, facebook, linkedin, twitter, instagram)
     db.session.add(touroperator)
     db.session.commit()
 
     return touroperator_schema.jsonify(touroperator)
 
 # get a Tour Operator list
+
+
 @app.route('/touroperator', methods=['GET'])
 def get_touroperators():
     touroperators = TourOperator.query.all()
@@ -337,12 +382,16 @@ def get_touroperators():
     return jsonify(touroperator_list)
 
 # Get a single Tour Operator
+
+
 @app.route('/touroperator/<id>', methods=['GET'])
 def get_touroperator(id):
     touroperator = TourOperator.query.get(id)
     return touroperator_schema.jsonify(touroperator)
 
 # Update a Tour Operator
+
+
 @app.route('/touroperator/<id>', methods=['PUT'])
 def update_touroperator(id):
     touroperator = TourOperator.query.get(id)
@@ -358,16 +407,17 @@ def update_touroperator(id):
     touroperator.address = request.json['address']
     touroperator.website = request.json['website']
     touroperator.facebook = request.json['facebook']
-    touroperator.linkedin  = request.json['linkedin']
-    touroperator.twitter  = request.json['twitter']
+    touroperator.linkedin = request.json['linkedin']
+    touroperator.twitter = request.json['twitter']
     touroperator.instagram = request.json['instagram']
-
 
     db.session.commit()
 
     return touroperator_schema.jsonify(touroperator)
 
 # Delete a Tour Operator
+
+
 @app.route('/touroperator/<id>', methods=['DELETE'])
 def delete_touroperator(id):
     touroperator = TourOperator.query.get(id)
@@ -378,6 +428,8 @@ def delete_touroperator(id):
     return touroperator_schema.jsonify(touroperator)
 
 # Create a Passport
+
+
 @app.route('/passport', methods=['POST'])
 def new_passport():
     passport_number = request.json['passport_number']
@@ -392,7 +444,9 @@ def new_passport():
     return passport_schema.jsonify(passport)
 
 # Get all passports
-@app.route('/passport', methods = ['GET'])
+
+
+@app.route('/passport', methods=['GET'])
 def get_passports():
     passports = Passport.query.all()
     passport_list = passports_schema.dump(passports)
@@ -400,6 +454,8 @@ def get_passports():
     return jsonify(passport_list)
 
 # Get a Passport
+
+
 @app.route('/passport/<id>', methods=['GET'])
 def get_passport(id):
     passport = Passport.query.get(id)
@@ -407,6 +463,8 @@ def get_passport(id):
     return passport_schema.jsonify(passport)
 
 # Update a Passport
+
+
 @app.route('/passport/<id>', methods=['PUT'])
 def update_passport(id):
     passport = Passport.query.get(id)
@@ -420,6 +478,8 @@ def update_passport(id):
     return passport_schema.jsonify(passport)
 
 # Delete a Passport
+
+
 @app.route('/passport/<id>', methods=['DELETE'])
 def delete_passport(id):
     passport = Passport.query.get(id)
@@ -430,7 +490,9 @@ def delete_passport(id):
     return passport_schema.jsonify(passport)
 
 # create an order
-@app.route('/order', methods = ['POST'])
+
+
+@app.route('/order', methods=['POST'])
 def new_order():
     user_id = request.json['user_id']
     total_price = request.json['total_price']
@@ -443,13 +505,17 @@ def new_order():
     return order_schema.jsonify(order)
 
 # get an order
-@app.route('/order/<id>', methods = ['GET'])
+
+
+@app.route('/order/<id>', methods=['GET'])
 def get_order(id):
     order = Order.query.get(id)
     return order_schema.jsonify(order)
 
 # get all orders
-@app.route('/order', methods = ['GET'])
+
+
+@app.route('/order', methods=['GET'])
 def get_orders():
     orders = Order.query.all()
     order_list = orders_schema.dump(orders)
@@ -457,7 +523,9 @@ def get_orders():
     return jsonify(order_list)
 
 # update an order
-@app.route('/order/<id>', methods = ['PUT'])
+
+
+@app.route('/order/<id>', methods=['PUT'])
 def update_order(id):
     order = Order.query.get(id)
     order.total_price = request.json['total_price']
@@ -467,7 +535,9 @@ def update_order(id):
     return order_schema.jsonify(order)
 
 # Delete an order
-@app.route('/order/<id>', methods = ['DELETE'])
+
+
+@app.route('/order/<id>', methods=['DELETE'])
 def delete_order(id):
     order = Order.query.get(id)
 
@@ -477,14 +547,16 @@ def delete_order(id):
     return order_schema.jsonify(order)
 
 # Create a tour
-@app.route('/tour', methods = ['POST'])
+
+
+@app.route('/tour', methods=['POST'])
 def new_tour():
     order_id = request.json['order_id']
     iteninary_id = request.json['iteninary_id']
     start_date = request.json['start_date']
     end_date = request.json['end_date']
 
-    tour = Tour( start_date, end_date, order_id, iteninary_id )
+    tour = Tour(start_date, end_date, order_id, iteninary_id)
 
     db.session.add(tour)
     db.session.commit()
@@ -492,7 +564,9 @@ def new_tour():
     return tour_schema.jsonify(tour)
 
 # Get all tours
-@app.route('/tour', methods = ['GET'])
+
+
+@app.route('/tour', methods=['GET'])
 def get_tours():
     tours = Tour.query.all()
     tour_list = tours_schema.dump(tours)
@@ -500,13 +574,17 @@ def get_tours():
     return jsonify(tour_list)
 
 # Get a tour
-@app.route('/tour/<id>', methods = ['GET'])
+
+
+@app.route('/tour/<id>', methods=['GET'])
 def get_tour(id):
     tour = Tour.query.get(id)
     return order_schema.jsonify(tour)
 
 # Update a tour
-@app.route('/tour/<id>', methods = ['PUT'])
+
+
+@app.route('/tour/<id>', methods=['PUT'])
 def update_tour(id):
     tour = Tour.query.get(id)
 
@@ -517,8 +595,10 @@ def update_tour(id):
 
     return tour_schema.jsonify(tour)
 
-#Delete a tour
-@app.route('/tour/<id>', methods = ['DELETE'])
+# Delete a tour
+
+
+@app.route('/tour/<id>', methods=['DELETE'])
 def delete_tour(id):
     tour = Tour.query.get(id)
 
@@ -528,7 +608,9 @@ def delete_tour(id):
     return tour_schema.jsonify(tour)
 
 # Create a itenirary_detail
-@app.route('/iteninary_detail', methods = ['POST'])
+
+
+@app.route('/iteninary_detail', methods=['POST'])
 def new_itinerary_detail():
     iteninary_id = request.json.get('iteninary_id')
     day = request.json.get('day')
@@ -539,7 +621,8 @@ def new_itinerary_detail():
     dinner = request.json.get('dinner')
     other_meals = request.json.get('other_meals')
 
-    iteninarydetail = IteninaryDetails( day, description, accomodation, breakfast, lunch, dinner, other_meals, iteninary_id )
+    iteninarydetail = IteninaryDetails(
+        day, description, accomodation, breakfast, lunch, dinner, other_meals, iteninary_id)
 
     db.session.add(iteninarydetail)
     db.session.commit()
@@ -547,7 +630,9 @@ def new_itinerary_detail():
     return iteninary_details.jsonify(iteninarydetail)
 
 # get all iteninary_delails
-@app.route('/iteninary_details', methods = ['GET'])
+
+
+@app.route('/iteninary_details', methods=['GET'])
 def get_iteninary_datails():
     iteninarydetails = IteninaryDetails.query.all()
     iteninarydetails_list = iteninarys_details.dump(iteninarydetails)
@@ -555,14 +640,18 @@ def get_iteninary_datails():
     return jsonify(iteninarydetails_list)
 
 # get an iteninary_detail
-@app.route('/iteninary_detail/<id>', methods = ['GET'])
+
+
+@app.route('/iteninary_detail/<id>', methods=['GET'])
 def get_iteninary_detail(id):
     iteninarydetail = IteninaryDetails.query.get(id)
 
     return iteninary_details.jsonify(iteninarydetail)
 
 # update itinerary detail
-@app.route('/iteninary_detail/<id>', methods = ['PUT'])
+
+
+@app.route('/iteninary_detail/<id>', methods=['PUT'])
 def update_itenirary_detail(id):
     iteninarydetail = IteninaryDetails.query.get(id)
 
@@ -580,7 +669,9 @@ def update_itenirary_detail(id):
     return iteninary_details.jsonify(iteninarydetail)
 
 # delete an itinerary detail
-@app.route('/iteninary_detail/<id>', methods = ['DELETE'])
+
+
+@app.route('/iteninary_detail/<id>', methods=['DELETE'])
 def delete_itenirary(id):
     iteninarydetail = IteninaryDetails.query.get(id)
 
@@ -590,7 +681,9 @@ def delete_itenirary(id):
     return iteninary_details.jsonify(iteninarydetail)
 
 # Create a license
-@app.route('/license', methods = ['POST'])
+
+
+@app.route('/license', methods=['POST'])
 def new_license():
     type = request.json.get('type')
     license_number = request.json.get('license_number')
@@ -598,7 +691,8 @@ def new_license():
     expiry_date = request.json.get('expire_date')
     tour_operator_id = request.json.get('tour_operator_id')
 
-    license = License(type, license_number, issue_date, expiry_date, tour_operator_id)
+    license = License(type, license_number, issue_date,
+                      expiry_date, tour_operator_id)
 
     db.session.add(license)
     db.session.commit()
@@ -606,7 +700,9 @@ def new_license():
     return license_schema.jsonify(license)
 
 # Get all licenses
-@app.route('/license', methods = ['GET'])
+
+
+@app.route('/license', methods=['GET'])
 def get_licenses():
     licenses = License.query.all()
     license_list = licenses_schema.dump(licenses)
@@ -614,14 +710,18 @@ def get_licenses():
     return jsonify(license_list)
 
 # Get a license
-@app.route('/license/<id>', methods = ['GET'])
+
+
+@app.route('/license/<id>', methods=['GET'])
 def get_license(id):
     license = License.query.get(id)
 
     return license_schema.jsonify(license)
 
 # Update a license
-@app.route('/license/<id>', methods = ['PUT'])
+
+
+@app.route('/license/<id>', methods=['PUT'])
 def update_license(id):
     license = License.query.get(id)
 
@@ -636,7 +736,9 @@ def update_license(id):
     return license_schema.jsonify(license)
 
 # Delete a license
-@app.route('/license/<id>', methods = ['DELETE'])
+
+
+@app.route('/license/<id>', methods=['DELETE'])
 def delete_license(id):
     license = License.query.get(id)
 
