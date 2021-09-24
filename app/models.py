@@ -151,7 +151,7 @@ class License(db.Model):
     __tablename__ = 'license'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)
-    license_number = db.Column(db.String(255), nullable=False)
+    license_number = db.Column(db.String(255), nullable=False, unique=True)
     issue_date = db.Column(db.DateTime, nullable=False)
     expire_date = db.Column(db.DateTime, nullable=False)
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
