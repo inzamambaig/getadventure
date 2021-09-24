@@ -585,9 +585,9 @@ def get_iteninary_datails():
 # get an iteninary_detail
 
 
-@app.route('/iteninary_detail/<id>', methods=['GET'])
-def get_iteninary_detail(id):
-    iteninarydetail = IteninaryDetails.query.get(id)
+@app.route('/iteninary_detail/<iteninary_id>', methods=['GET'])
+def get_iteninary_detail(iteninary_id):
+    iteninarydetail = IteninaryDetails.query.get(iteninary_id)
 
     return iteninary_details.jsonify(iteninarydetail)
 
@@ -655,18 +655,18 @@ def get_licenses():
 # Get a license
 
 
-@app.route('/license/<id>', methods=['GET'])
-def get_license(id):
-    tour_operator_id = License.query.get(id)
+@app.route('/license/<tour_operator_id>', methods=['GET'])
+def get_license(tour_operator_id):
+    license = License.query.get(tour_operator_id)
 
     return license_schema.jsonify(license)
 
 # Update a license
 
 
-@app.route('/license/<id>', methods=['PUT'])
-def update_license(id):
-    license = License.query.get(id)
+@app.route('/license/<tour_operator_id>', methods=['PUT'])
+def update_license(tour_operator_id):
+    license = License.query.get(tour_operator_id)
 
     license.type = request.json.get('type')
     license.license_number = request.json.get('license_number')
@@ -681,72 +681,11 @@ def update_license(id):
 # Delete a license
 
 
-@app.route('/license/<id>', methods=['DELETE'])
-def delete_license(id):
-    license = License.query.get(id)
+@app.route('/license/<tour_operator_id>', methods=['DELETE'])
+def delete_license(tour_operator_id):
+    license = License.query.get(tour_operator_id)
 
     db.session.delete(license)
     db.session.commit()
 
     return license_schema.jsonify(license)
-
-# # Get a Single Item
-# @app.route('/check/<id>', methods=['GET'])
-# def get_single_product(id):
-#     single_product = Deez.Check.query.get(id)
-
-#     return Deez.check_schema.jsonify(single_product)
-
-# # Create SINGLE data
-# @app.route("/check", methods=['POST'])
-# def add_product():
-#     name = request.json['name']
-#     description = request.json['description']
-#     price = request.json['price']
-
-
-#     new_product = Deez.Check(name, description, price)
-
-#     db.session.add(new_product)
-#     db.session.commit()
-
-#     return Deez.check_schema.jsonify(new_product)
-
-# # Get All
-# @app.route('/check', methods=['GET'])
-# def get_product():
-#     all_products = Deez.Check.query.all()
-#     result = Deez.checks_schema.dump(all_products)
-
-#     return jsonify(result)
-
-# # Get a Single Item
-# @app.route('/check/<id>', methods=['GET'])
-# def get_single_product(id):
-#     single_product = Deez.Check.query.get(id)
-#     return Deez.check_schema.jsonify(single_product)
-
-# # Update Product
-# @app.route("/check/<id>", methods=['PUT'])
-# def update_product(id):
-#     product = Deez.Check.query.get(id)
-
-#     name = request.json['name']
-#     description = request.json['description']
-#     price = request.json['price']
-
-#     product.name = name
-#     product.description = description
-#     product.price = price
-
-#     db.session.commit()
-#     return Deez.check_schema.jsonify(product)
-
-# # Delete a Single Item
-# @app.route('/check/<id>', methods=['DELETE'])
-# def delete_single_product(id):
-#     product = Deez.Check.query.get(id)
-#     db.session.delete(product)
-#     db.session.commit()
-
-#     return Deez.check_schema.jsonify(product)
