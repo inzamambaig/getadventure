@@ -585,19 +585,18 @@ def get_iteninary_datails():
 # get an iteninary_detail
 
 
-@app.route('/iteninary_detail/<iteninary_id>', methods=['GET'])
-def get_iteninary_detail(iteninary_id):
-    iteninarydetail = IteninaryDetails.query.get(iteninary_id)
+@app.route('/iteninary_detail/<id>', methods=['GET'])
+def get_iteninary_detail(id):
+    iteninarydetail = IteninaryDetails.query.filter_by(tour_operator_id=id).all()
+    iteninarydetails = iteninarys_schema.dump(iteninarydetail)
+    return jsonify(iteninarydetails)
 
-    return iteninary_details.jsonify(iteninarydetail)
+    
 
 # update itinerary detail
-
-
 @app.route('/iteninary_detail/<id>', methods=['PUT'])
 def update_itenirary_detail(id):
-    iteninarydetail = IteninaryDetails.query.get(id)
-
+    iteninarydetail = IteninaryDetails.query.get(tour_operator_id=id)
     iteninarydetail.iteninary_id = request.json.get('iteninary_id')
     iteninarydetail.day = request.json.get('day')
     iteninarydetail.description = request.json.get('description')
@@ -611,12 +610,11 @@ def update_itenirary_detail(id):
 
     return iteninary_details.jsonify(iteninarydetail)
 
+
 # delete an itinerary detail
-
-
 @app.route('/iteninary_detail/<id>', methods=['DELETE'])
 def delete_itenirary(id):
-    iteninarydetail = IteninaryDetails.query.get(id)
+    iteninarydetail = IteninaryDetails.query.get(tour_operator_id=id)
 
     db.session.delete(iteninarydetail)
     db.session.commit()
