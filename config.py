@@ -1,6 +1,6 @@
 
 class Config:
-    ENV = 'dev'
+    ENV = 'prod'
     if ENV == 'dev':
         user = 'postgres'
         pwd = 'startadventure'
