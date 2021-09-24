@@ -588,7 +588,7 @@ def get_iteninary_datails():
 @app.route('/iteninary_detail/<id>', methods=['GET'])
 def get_iteninary_detail(id):
     iteninarydetail = IteninaryDetails.query.filter_by(iteninary_id=id).all()
-    iteninarydetails = iteninarys_schema.dump(iteninarydetail)
+    iteninarydetails = iteninarys_details.dump(iteninarydetail)
     return jsonify(iteninarydetails)
 
     
