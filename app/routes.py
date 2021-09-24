@@ -94,6 +94,7 @@ def new_user():
     name = request.json['name']
     address = request.json['address']
     country = request.json['country']
+    password = request.json['password']
     date_of_birth = request.json['date_of_birth']
     email = request.json['email']
     gender = request.json['gender']
@@ -102,7 +103,7 @@ def new_user():
     zip_code = request.json['zip_code']
 
     new_user = User(name, email, phone, country, gender, group,
-                    address, date_of_birth, "", zip_code)
+                    address, date_of_birth, password, zip_code)
 
     db.session.add(new_user)
     db.session.commit()
