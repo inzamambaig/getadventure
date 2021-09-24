@@ -52,69 +52,6 @@ def protected():
     return jsonify(logged_in_as=current_user), 200
 
 
-"""
-def authenticate(username, password):
-    user = User.query.filter_by(name=username).first()
-    if user and safe_str_cmp(user.password.encode('utf-8'), password.encode('utf-8')):
-        return user
-
-def identity(payload):
-    user_id = payload['identity']
-    return User.query.get(user_id)
-
-@app.route('/login')
-def login():
-    auth = request.authorization
-
-    if auth and auth.password == 'password':
-        token = jwt.encode({ 'user' : auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30) }, app.config['SECRET_KEY'])
-
-        return jsonify('token', token.decode('utf-8'))
-
-    return make_response('could not verified', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
-
-    return jsonify({'token', token.decode('UTF-8')})
-
-
-def token_required(f):
-    @wraps(f)
-    def decoreted(*args, **kwargs):
-        token = None
-        
-        token = request.json.get('token')
-        if not token:
-            return jsonify({'message' : 'Token is missing!'}), 403
-
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])                  #to check whether token is valid
-        except:
-            return jsonify({'message' : 'Token is invalid!'}), 403
-
-        return f(*args, **kwargs)
-    return decoreted
-
-
-jwt = JWT(app, authenticate, identity)
-
-@app.route('/protected')
-def protected():
-    return '%s' % current_identity
-
-@app.route('/login', methods=['GET'])
-def login():
-    username = request.json['username']
-    password = request.json['password']
-
-    user = User.query.filter_by(name=username)
-
-    print(user.name)
-
-    if user and password == '12345678':
-        tocken = jwt.encode({'user': 'The Quick', 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, key = 'Getanadventure')
-
-        return jsonify({'tocken' : tocken.decode('UTF-8')})
-    return make_response('Could not response', 401, {'WWW-Authencate' : 'Basic realm="Login Required"'})
-"""
 
 
 @app.route('/', methods=['GET'])
@@ -720,7 +657,7 @@ def get_licenses():
 
 @app.route('/license/<id>', methods=['GET'])
 def get_license(id):
-    license = License.query.get(id)
+    tour_operator_id = License.query.get(id)
 
     return license_schema.jsonify(license)
 
