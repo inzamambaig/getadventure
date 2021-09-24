@@ -151,7 +151,7 @@ class License(db.Model):
     __tablename__ = 'license'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)
-    license_number = db.Column(db.String(255), nullable=False, unique=True)
+    license_number = db.Column(db.String(255), unique=True, nullable=False )
     issue_date = db.Column(db.DateTime, nullable=False)
     expire_date = db.Column(db.DateTime, nullable=False)
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
@@ -200,7 +200,7 @@ orders_schema = OrderSchema(many=True)
 class Passport(db.Model):
     __tablename__ = 'passport'
     id = db.Column(db.Integer, primary_key=True)
-    passport_number = db.Column(db.String(100), unique=True)
+    passport_number = db.Column(db.String(100), unique=True, nullable=False)
     issue_date = db.Column(db.DateTime, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default = datetime.now)
