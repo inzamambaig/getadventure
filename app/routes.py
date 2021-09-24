@@ -573,8 +573,6 @@ def new_itinerary_detail():
     })
 
 # get all iteninary_delails
-
-
 @app.route('/iteninary_details', methods=['GET'])
 def get_iteninary_datails():
     iteninarydetails = IteninaryDetails.query.all()
@@ -582,9 +580,9 @@ def get_iteninary_datails():
 
     return jsonify(iteninarydetails_list)
 
+
+
 # get an iteninary_detail
-
-
 @app.route('/iteninary_detail/<id>', methods=['GET'])
 def get_iteninary_detail(id):
     iteninarydetail = IteninaryDetails.query.filter_by(iteninary_id=id).all()
@@ -596,7 +594,8 @@ def get_iteninary_detail(id):
 # update itinerary detail
 @app.route('/iteninary_detail/<id>', methods=['PUT'])
 def update_itenirary_detail(id):
-    iteninarydetail = IteninaryDetails.query.get(iteninary_id=id)
+    iteninary_id=id
+    iteninarydetail = IteninaryDetails.query.get(iteninary_id)
     iteninarydetail.iteninary_id = request.json.get('iteninary_id')
     iteninarydetail.day = request.json.get('day')
     iteninarydetail.description = request.json.get('description')
