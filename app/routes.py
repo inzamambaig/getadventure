@@ -596,7 +596,8 @@ def get_iteninary_detail(id):
 def update_itenirary_detail(id):
     iteninary_id=id
     iteninarydetail = IteninaryDetails.query.get(iteninary_id)
-    iteninarydetail.iteninary_id = request.json.get('iteninary_id')
+    print(iteninarydetail)
+    # iteninarydetail.iteninary_id = request.json.get('iteninary_id')
     iteninarydetail.day = request.json.get('day')
     iteninarydetail.description = request.json.get('description')
     iteninarydetail.accomodation = request.json.get('accomodation')
