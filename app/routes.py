@@ -1,4 +1,4 @@
-from app import app, db
+from app import app, db, bcrypt, jwt
 from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
@@ -11,27 +11,31 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from datetime import datetime, timedelta
 from werkzeug.security import safe_str_cmp
 from functools import wraps
-import datetime
-from flask_bcrypt import Bcrypt
-
-KEY = 'Getanadventure'  # constant key declaration
-
-app.config['SECRET_KEY'] = KEY
-#app = Flask(__name__)
-bcrypt = Bcrypt(app)
-
-jwt = JWTManager(app)
 
 
+# Test Routes
+
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
+
+
+@app.route('/', methods=['GET'])
+def get():
+    return jsonify({'msg': 'hello world'})
+
+# Tour Operator Sign In
 @app.route('/signin', methods=['POST'])
 def signin():
     name = request.json['name']
     password = request.json['password']
 
     user = TourOperator.query.filter_by(name=name).first()
-
+    additional_claims = {"name" : user.name, "company_name": user.company_name, "phone": user.phone, "website": user.website, "address": user.address, "city": user.city, "zip_code": user.zip_code, "country": user.country, "email": user.email, "facebook": user.facebook, "instagram": user.instagram, "linkedin": user.linkedin, "twitter": user.twitter }
     if (bcrypt.check_password_hash(user.password, password)):
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=user.email, additional_claims=additional_claims)
         return ({
             "user": touroperator_schema.jsonify(user).get_json(), 
             "token":  access_token, 
@@ -42,25 +46,7 @@ def signin():
         return jsonify({"msg": "Bad username or password"})
 
 
-@app.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
-
-
-
-@app.route('/', methods=['GET'])
-def get():
-    return jsonify({'msg': 'hello world'})
-
-
-"""
-USER
-"""
-
-# Sign Up
+# Tour Operator Sign Up
 @app.route('/signup', methods=['POST'])
 def signup():
     name = request.json['name']
@@ -79,7 +65,6 @@ def signup():
     twitter = request.json['twitter']
     instagram = request.json['instagram']
 
-#    hashed = bcrypt.generate_password_hash(password, 19).decode('utf8')
 
     new_tour_operator = TourOperator(name, company_name, email, password, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram)
 
@@ -87,6 +72,8 @@ def signup():
     db.session.commit()
 
     return ({"Tour Operator": name, "message": "Created"})
+
+
 
 # Create new user
 @app.route('/user', methods=['POST'])
@@ -110,46 +97,8 @@ def new_user():
 
     return ({"Tour Operator": name, "message": "Created"})
 
-# Get a single user
-@app.route('/user/<id>', methods=['GET'])
-def get_user(id):
-    user = User.query.get(id)
-    return user_schema.jsonify(user)
 
-# Get All Users
-@app.route('/user', methods=['GET'])
-def get_users():
-    users = User.query.all()
-    users_list = users_schema.dump(users)
-    return jsonify(users_list)
 
-# Update a user
-@app.route('/user/<id>', methods=['PUT'])
-def update_user(id):
-    user = User.query.get(id)
-
-    user.name = request.json['name']
-    user.address = request.json['address']
-    user.country = request.json['country']
-    user.date_of_birth = request.json['date_of_birth']
-    user.email = request.json['email']
-    user.gender = request.json['gender']
-    user.group = request.json['group']
-    user.phone = request.json['phone']
-    user.zip_code = request.json['zip_code']
-
-    db.session.commit()
-
-    return ({"User": user.name, "message": "Updated"})
-
-# Delete a user
-@app.route('/user/<id>', methods=['DELETE'])
-def delete_user(id):
-    user = User.query.get(id)
-    db.session.delete(user)
-    db.session.commit()
-
-    return ({"User": id, "message": "Deleted"})
 
 
 """
@@ -192,8 +141,12 @@ def delete_group(id):
     db.session.commit()
     return group_schema.jsonify(group)
 """
+
+
+
 # Create new iteninary
 @app.route('/iteninary', methods=['POST'])
+@jwt_required()
 def new_iteninary():
     title = request.json['title']
     type = request.json['type']
@@ -218,6 +171,7 @@ def new_iteninary():
 
 # Get Single iteninaries
 @app.route('/iteninary/<id>', methods=['GET'])
+@jwt_required()
 def get_iteninaries(id):
     iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
     iteninary_list = iteninarys_schema.dump(iteninary)
@@ -225,6 +179,7 @@ def get_iteninaries(id):
 
 # Get All iteninaries
 @app.route('/iteninary', methods=['GET'])
+@jwt_required()
 def get_all_iteninaries():
     iteninary = Iteninary.query.all()
     iteninary_list = iteninarys_schema.dump(iteninary)
@@ -232,6 +187,7 @@ def get_all_iteninaries():
 
 # Update an iteninary
 @app.route('/iteninary/<id>', methods=['PUT'])
+@jwt_required()
 def update_iteninary(id):
     iteninary = Iteninary.query.get(id)
 
@@ -254,12 +210,61 @@ def update_iteninary(id):
 
 # Delete iteninary
 @app.route('/iteninary/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_itinerary(id):
     iteninary = Iteninary.query.get(id)
     db.session.delete(iteninary)
     db.session.commit()
 
     return ({"Iteninary": id, "message": "Deleted Successfully"})
+
+
+""" 
+Admin
+"""
+
+# Get a single user
+@app.route('/user/<id>', methods=['GET'])
+def get_user(id):
+    user = User.query.get(id)
+    return user_schema.jsonify(user)
+
+# Get All Users
+@app.route('/user', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    users_list = users_schema.dump(users)
+    return jsonify(users_list)
+
+# Update a user
+@app.route('/user/<id>', methods=['PUT'])
+@jwt_required()
+def update_user(id):
+    user = User.query.get(id)
+
+    user.name = request.json['name']
+    user.address = request.json['address']
+    user.country = request.json['country']
+    user.date_of_birth = request.json['date_of_birth']
+    user.email = request.json['email']
+    user.gender = request.json['gender']
+    user.group = request.json['group']
+    user.phone = request.json['phone']
+    user.zip_code = request.json['zip_code']
+
+    db.session.commit()
+
+    return ({"User": user.name, "message": "Updated"})
+
+# Delete a user
+@app.route('/user/<id>', methods=['DELETE'])
+@jwt_required()
+def delete_user(id):
+    user = User.query.get(id)
+    db.session.delete(user)
+    db.session.commit()
+
+    return ({"User": id, "message": "Deleted"})
 
 # Create new Tour Operator
 @app.route('/touroperator', methods=['POST'])
@@ -301,6 +306,7 @@ def get_touroperator(id):
 
 # Update a Tour Operator
 @app.route('/touroperator/<id>', methods=['PUT'])
+@jwt_required()
 def update_touroperator(id):
     touroperator = TourOperator.query.get(id)
 
@@ -325,6 +331,7 @@ def update_touroperator(id):
 
 # Delete a Tour Operator
 @app.route('/touroperator/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_touroperator(id):
     touroperator = TourOperator.query.get(id)
 
@@ -335,6 +342,7 @@ def delete_touroperator(id):
 
 # Create a Passport
 @app.route('/passport', methods=['POST'])
+@jwt_required()
 def new_passport():
     passport_number = request.json['passport_number']
     issue_date = request.json['issue_date']
@@ -349,6 +357,7 @@ def new_passport():
 
 # Get all passports
 @app.route('/passport', methods=['GET'])
+@jwt_required()
 def get_passports():
     passports = Passport.query.all()
     passport_list = passports_schema.dump(passports)
@@ -357,6 +366,7 @@ def get_passports():
 
 # Get a Passport
 @app.route('/passport/<id>', methods=['GET'])
+@jwt_required()
 def get_passport(id):
     passport = Passport.query.get(id)
 
@@ -364,6 +374,7 @@ def get_passport(id):
 
 # Update a Passport
 @app.route('/passport/<id>', methods=['PUT'])
+@jwt_required()
 def update_passport(id):
     passport = Passport.query.get(id)
 
@@ -377,6 +388,7 @@ def update_passport(id):
 
 # Delete a Passport
 @app.route('/passport/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_passport(id):
     passport = Passport.query.get(id)
 
@@ -387,6 +399,7 @@ def delete_passport(id):
 
 # Create an order
 @app.route('/order', methods=['POST'])
+@jwt_required()
 def new_order():
     user_id = request.json['user_id']
     total_price = request.json['total_price']
@@ -400,12 +413,14 @@ def new_order():
 
 # Get an order
 @app.route('/order/<id>', methods=['GET'])
+@jwt_required()
 def get_order(id):
     order = Order.query.get(id)
     return order_schema.jsonify(order)
 
 # Get all orders
 @app.route('/order', methods=['GET'])
+@jwt_required()
 def get_orders():
     orders = Order.query.all()
     order_list = orders_schema.dump(orders)
@@ -414,6 +429,7 @@ def get_orders():
 
 # Update an order
 @app.route('/order/<id>', methods=['PUT'])
+@jwt_required()
 def update_order(id):
     order = Order.query.get(id)
     order.total_price = request.json['total_price']
@@ -424,6 +440,7 @@ def update_order(id):
 
 # Delete an order
 @app.route('/order/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_order(id):
     order = Order.query.get(id)
 
@@ -434,6 +451,7 @@ def delete_order(id):
 
 # Create a tour
 @app.route('/tour', methods=['POST'])
+@jwt_required()
 def new_tour():
     order_id = request.json['order_id']
     iteninary_id = request.json['iteninary_id']
@@ -449,6 +467,7 @@ def new_tour():
 
 # Get all tours
 @app.route('/tour', methods=['GET'])
+@jwt_required()
 def get_tours():
     tours = Tour.query.all()
     tour_list = tours_schema.dump(tours)
@@ -457,12 +476,14 @@ def get_tours():
 
 # Get a tour
 @app.route('/tour/<id>', methods=['GET'])
+@jwt_required()
 def get_tour(id):
     tour = Tour.query.get(id)
     return order_schema.jsonify(tour)
 
 # Update a tour
 @app.route('/tour/<id>', methods=['PUT'])
+@jwt_required()
 def update_tour(id):
     tour = Tour.query.get(id)
 
@@ -475,6 +496,7 @@ def update_tour(id):
 
 # Delete a tour
 @app.route('/tour/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_tour(id):
     tour = Tour.query.get(id)
 
@@ -485,6 +507,7 @@ def delete_tour(id):
 
 # Create a itenirary_detail
 @app.route('/iteninary_detail', methods=['POST'])
+@jwt_required()
 def new_itinerary_detail():
     iteninary_id = request.json.get('iteninary_id')
     day = request.json.get('day')
@@ -510,6 +533,7 @@ def new_itinerary_detail():
 
 # get all iteninary_delails
 @app.route('/iteninary_details', methods=['GET'])
+@jwt_required()
 def get_iteninary_datails():
     iteninarydetails = IteninaryDetails.query.all()
     iteninarydetails_list = iteninarys_details.dump(iteninarydetails)
@@ -520,6 +544,7 @@ def get_iteninary_datails():
 
 # get an iteninary_detail
 @app.route('/iteninary_detail/<id>', methods=['GET'])
+@jwt_required()
 def get_iteninary_detail(id):
     iteninarydetail = IteninaryDetails.query.filter_by(iteninary_id=id)
     iteninarydetails = iteninarys_details.dump(iteninarydetail)
@@ -529,6 +554,7 @@ def get_iteninary_detail(id):
 
 # update itinerary detail
 @app.route('/iteninary_detail/<id>', methods=['PUT'])
+@jwt_required()
 def update_itenirary_detail(id):
     iteninarydetail = IteninaryDetails.query.get(id)
 
@@ -548,6 +574,7 @@ def update_itenirary_detail(id):
 
 # delete an itinerary detail
 @app.route('/iteninary_detail/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_itenirary(id):
     iteninarydetail = IteninaryDetails.query.get(iteninary_id=id)
 
@@ -558,6 +585,7 @@ def delete_itenirary(id):
 
 # Create a license
 @app.route('/license', methods=['POST'])
+@jwt_required()
 def new_license():
     type = request.json.get('type')
     license_number = request.json.get('license_number')
@@ -576,6 +604,7 @@ def new_license():
 
 # Get all licenses
 @app.route('/license', methods=['GET'])
+@jwt_required()
 def get_licenses():
     licenses = License.query.all()
     license_list = licenses_schema.dump(licenses)
@@ -585,6 +614,7 @@ def get_licenses():
 
 # Get a license
 @app.route('/license/<id>', methods=['GET'])
+@jwt_required()
 def get_license(id):
     print(id)
     license = License.query.filter_by(tour_operator_id=id)
@@ -595,6 +625,7 @@ def get_license(id):
 
 # Update a license
 @app.route('/license/<id>', methods=['PUT'])
+@jwt_required()
 def update_license(id):
     license = License.query.get(id)
 
@@ -610,6 +641,7 @@ def update_license(id):
 
 # Delete a license
 @app.route('/license/<id>', methods=['DELETE'])
+@jwt_required()
 def delete_license(id):
     license = License.query.get(id)
 
