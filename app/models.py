@@ -1,5 +1,5 @@
 from app import db, ma, bcrypt
-from enum import unique
+# from enum import unique
 from sqlalchemy.orm import backref
 from datetime import datetime
 from sqlalchemy.ext.hybrid import hybrid_property
