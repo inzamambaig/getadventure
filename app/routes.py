@@ -1,4 +1,5 @@
 from marshmallow.fields import Email
+from flask_cors import cross_origin
 from app import app, db, bcrypt, jwt, cors
 from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
@@ -12,6 +13,8 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from datetime import datetime, timedelta
 from werkzeug.security import safe_str_cmp
 from functools import wraps
+
+
 
 
 # Test Routes
