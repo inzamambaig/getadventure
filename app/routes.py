@@ -1,3 +1,4 @@
+from marshmallow.fields import Email
 from app import app, db, bcrypt, jwt
 from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
@@ -29,10 +30,16 @@ def get():
 # Tour Operator Sign In
 @app.route('/signin', methods=['POST'])
 def signin():
-    name = request.json['name']
+    email = request.json['email']
     password = request.json['password']
 
-    user = TourOperator.query.filter_by(name=name).first()
+    user = TourOperator.query.filter_by(email=email).first()
+    if(not user):
+        return ({
+            "status": 400,
+            "msg": "Username not found"
+        })
+    
     additional_claims = {"name" : user.name, "company_name": user.company_name, "phone": user.phone, "website": user.website, "address": user.address, "city": user.city, "zip_code": user.zip_code, "country": user.country, "email": user.email, "facebook": user.facebook, "instagram": user.instagram, "linkedin": user.linkedin, "twitter": user.twitter }
     if (bcrypt.check_password_hash(user.password, password)):
         access_token = create_access_token(identity=user.email, additional_claims=additional_claims)
@@ -43,7 +50,7 @@ def signin():
             "message": "login successful"
             })
     else:
-        return jsonify({"msg": "Bad username or password"})
+        return jsonify({"msg": "Bad password"})
 
 
 # Tour Operator Sign Up
