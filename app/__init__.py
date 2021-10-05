@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from config import Config
@@ -14,10 +15,13 @@ jwt = JWTManager(app)
 
 
 app.config.from_object(Config)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 db = SQLAlchemy(app)
 # Init Marshmallow
 ma = Marshmallow(app)
+
+
 
 
 bcrypt = Bcrypt(app)

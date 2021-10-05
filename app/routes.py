@@ -1,5 +1,5 @@
 from marshmallow.fields import Email
-from app import app, db, bcrypt, jwt
+from app import app, db, bcrypt, jwt, cors
 from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
@@ -29,6 +29,7 @@ def get():
 
 # Tour Operator Sign In
 @app.route('/signin', methods=['POST'])
+@cross_origin()
 def signin():
     email = request.json['email']
     password = request.json['password']
