@@ -1,6 +1,6 @@
 from marshmallow.fields import Email
 from flask_cors import cross_origin
-from app import app, db, bcrypt, jwt, cors
+from app import app, db, bcrypt, jwt, cors, jsonschema
 from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
@@ -16,22 +16,17 @@ from functools import wraps
 
 
 
+# CORS ON ALL ROUTES
+
 
 # Test Routes
-
-@app.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
-
 @app.route('/', methods=['GET'])
 def get():
     return jsonify({'msg': 'hello world'})
 
 # Tour Operator Sign In
 @app.route('/signin', methods=['POST'])
+@jsonschema.validate('touroperator', 'signin')
 @cross_origin()
 def signin():
     email = request.json['email']
@@ -54,11 +49,13 @@ def signin():
             "message": "login successful"
             })
     else:
-        return jsonify({"msg": "Bad password"})
+        return jsonify({"msg": "Invalid password"})
 
 
 # Tour Operator Sign Up
 @app.route('/signup', methods=['POST'])
+@jsonschema.validate('touroperator', 'signup')
+@cross_origin()
 def signup():
     name = request.json['name']
     company_name = request.json['company_name']
@@ -76,7 +73,6 @@ def signup():
     twitter = request.json['twitter']
     instagram = request.json['instagram']
 
-
     new_tour_operator = TourOperator(name, company_name, email, password, phone, country, city, zip_code, gender, address, website, facebook, linkedin, twitter, instagram)
 
     db.session.add(new_tour_operator)
@@ -84,10 +80,9 @@ def signup():
 
     return ({"Tour Operator": name, "message": "Created"})
 
-
-
 # Create new user
 @app.route('/user', methods=['POST'])
+@cross_origin()
 def new_user():
     name = request.json['name']
     address = request.json['address']
@@ -158,6 +153,8 @@ def delete_group(id):
 # Create new iteninary
 @app.route('/iteninary', methods=['POST'])
 @jwt_required()
+@jsonschema.validate('itinerary', 'create')
+@cross_origin()
 def new_iteninary():
     title = request.json['title']
     type = request.json['type']
@@ -183,6 +180,7 @@ def new_iteninary():
 # Get Single iteninaries
 @app.route('/iteninary/<id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_iteninaries(id):
     iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
     iteninary_list = iteninarys_schema.dump(iteninary)
@@ -191,6 +189,7 @@ def get_iteninaries(id):
 # Get All iteninaries
 @app.route('/iteninary', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_all_iteninaries():
     iteninary = Iteninary.query.all()
     iteninary_list = iteninarys_schema.dump(iteninary)
@@ -199,6 +198,8 @@ def get_all_iteninaries():
 # Update an iteninary
 @app.route('/iteninary/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('itinerary', 'update')
+@cross_origin()
 def update_iteninary(id):
     iteninary = Iteninary.query.get(id)
 
@@ -222,6 +223,7 @@ def update_iteninary(id):
 # Delete iteninary
 @app.route('/iteninary/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_itinerary(id):
     iteninary = Iteninary.query.get(id)
     db.session.delete(iteninary)
@@ -236,12 +238,16 @@ Admin
 
 # Get a single user
 @app.route('/user/<id>', methods=['GET'])
+@jwt_required()
+@cross_origin()
 def get_user(id):
     user = User.query.get(id)
     return user_schema.jsonify(user)
 
 # Get All Users
 @app.route('/user', methods=['GET'])
+@jwt_required()
+@cross_origin()
 def get_users():
     users = User.query.all()
     users_list = users_schema.dump(users)
@@ -250,6 +256,8 @@ def get_users():
 # Update a user
 @app.route('/user/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('user', 'update')
+@cross_origin()
 def update_user(id):
     user = User.query.get(id)
 
@@ -270,6 +278,7 @@ def update_user(id):
 # Delete a user
 @app.route('/user/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_user(id):
     user = User.query.get(id)
     db.session.delete(user)
@@ -278,7 +287,11 @@ def delete_user(id):
     return ({"User": id, "message": "Deleted"})
 
 # Create new Tour Operator
+"""
 @app.route('/touroperator', methods=['POST'])
+@jwt_required()
+@jsonschema.validate('tour_operator', 'create')
+@cross_origin()
 def new_touroperator():
     name = request.json['name']
     company_name = request.json['company_name']
@@ -301,9 +314,12 @@ def new_touroperator():
     db.session.commit()
 
     return ({"Tour Operator": name, "message": "Created"})
+"""
 
 # get a Tour Operator list
 @app.route('/touroperator', methods=['GET'])
+@jwt_required()
+@cross_origin()
 def get_touroperators():
     touroperators = TourOperator.query.all()
     touroperator_list = touroperators_schema .dump(touroperators)
@@ -311,6 +327,8 @@ def get_touroperators():
 
 # Get a single Tour Operator
 @app.route('/touroperator/<id>', methods=['GET'])
+@jwt_required()
+@cross_origin()
 def get_touroperator(id):
     touroperator = TourOperator.query.get(id)
     return touroperator_schema.jsonify(touroperator)
@@ -318,6 +336,8 @@ def get_touroperator(id):
 # Update a Tour Operator
 @app.route('/touroperator/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('touroperator', 'update')
+@cross_origin()
 def update_touroperator(id):
     touroperator = TourOperator.query.get(id)
 
@@ -343,6 +363,7 @@ def update_touroperator(id):
 # Delete a Tour Operator
 @app.route('/touroperator/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_touroperator(id):
     touroperator = TourOperator.query.get(id)
 
@@ -354,6 +375,7 @@ def delete_touroperator(id):
 # Create a Passport
 @app.route('/passport', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def new_passport():
     passport_number = request.json['passport_number']
     issue_date = request.json['issue_date']
@@ -369,6 +391,7 @@ def new_passport():
 # Get all passports
 @app.route('/passport', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_passports():
     passports = Passport.query.all()
     passport_list = passports_schema.dump(passports)
@@ -378,6 +401,7 @@ def get_passports():
 # Get a Passport
 @app.route('/passport/<id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_passport(id):
     passport = Passport.query.get(id)
 
@@ -386,6 +410,7 @@ def get_passport(id):
 # Update a Passport
 @app.route('/passport/<id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_passport(id):
     passport = Passport.query.get(id)
 
@@ -463,6 +488,7 @@ def delete_order(id):
 # Create a tour
 @app.route('/tour', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def new_tour():
     order_id = request.json['order_id']
     iteninary_id = request.json['iteninary_id']
@@ -519,6 +545,8 @@ def delete_tour(id):
 # Create a itenirary_detail
 @app.route('/iteninary_detail', methods=['POST'])
 @jwt_required()
+@jsonschema.validate('itinerary_detail', 'create')
+@cross_origin()
 def new_itinerary_detail():
     iteninary_id = request.json.get('iteninary_id')
     day = request.json.get('day')
@@ -545,6 +573,7 @@ def new_itinerary_detail():
 # get all iteninary_delails
 @app.route('/iteninary_details', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_iteninary_datails():
     iteninarydetails = IteninaryDetails.query.all()
     iteninarydetails_list = iteninarys_details.dump(iteninarydetails)
@@ -556,16 +585,17 @@ def get_iteninary_datails():
 # get an iteninary_detail
 @app.route('/iteninary_detail/<id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_iteninary_detail(id):
     iteninarydetail = IteninaryDetails.query.filter_by(iteninary_id=id)
     iteninarydetails = iteninarys_details.dump(iteninarydetail)
     return jsonify(iteninarydetails)
 
-    
-
 # update itinerary detail
 @app.route('/iteninary_detail/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('itinerary_detail', 'update')
+@cross_origin()
 def update_itenirary_detail(id):
     iteninarydetail = IteninaryDetails.query.get(id)
 
@@ -586,6 +616,7 @@ def update_itenirary_detail(id):
 # delete an itinerary detail
 @app.route('/iteninary_detail/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_itenirary(id):
     iteninarydetail = IteninaryDetails.query.get(iteninary_id=id)
 

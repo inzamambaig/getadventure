@@ -1,0 +1,50 @@
+{
+    "signin": {
+      "type": "object",
+      "properties": {
+        "email": {},
+        "password": {}
+      },
+      "required": ["email", "password"]
+    },
+    "signup": {
+      "type": "object",
+      "properties": {
+        "name" : {},
+        "company_name" : {},
+        "email" : {},
+        "phone" : {},
+        "country" : {},
+        "city" : {},
+        "zip_code" : {},
+        "gender" : {},
+        "address" : {},
+        "website": {},
+        "facebook" : {},
+        "linkedin" : {},
+        "twitter" : {},
+        "instagram" : {}
+      },
+      "required": ["name", "company_name", "email", "phone", "country", "city", "zip_code", "gender", "address"]
+    },
+    "update": {
+      "type": "object",
+      "properties": {
+        "name" : {},
+        "company_name" : {},
+        "email" : {},
+        "phone" : {},
+        "country" : {},
+        "city" : {},
+        "zip_code" : {},
+        "gender" : {},
+        "address" : {},
+        "website": {},
+        "facebook" : {},
+        "linkedin" : {},
+        "twitter" : {},
+        "instagram" : {}
+      },
+      "required": ["name", "company_name", "email", "phone", "country", "city", "zip_code", "gender", "address"]
+    }
+}
