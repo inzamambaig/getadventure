@@ -5,6 +5,9 @@ getadventure/
 *.pyc
 __pycache__/
 
+app/__pycache__/__init__.cpython-38.pyc
+__pycache__/config.cpython-38.pyc
+
 instance/
 
 .pytest_cache/
