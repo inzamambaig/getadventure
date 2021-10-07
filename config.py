@@ -1,6 +1,6 @@
 class Config:
-    ENV = 'dev'
-    if ENV == 'dev':
+    ENV = 'prod'
+    if ENV == 'prod':
         user = 'postgres'
         pwd = 'startadventure'
         port = 5432
