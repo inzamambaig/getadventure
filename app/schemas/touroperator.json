@@ -2,7 +2,7 @@
     "signin": {
       "type": "object",
       "properties": {
-        "email": {},
+        "email": { "format":"email" },
         "password": {}
       },
       "required": ["email", "password"]
@@ -12,7 +12,7 @@
       "properties": {
         "name" : {},
         "company_name" : {},
-        "email" : {},
+        "email" : {"type":"string", "format":"email" },
         "phone" : {},
         "country" : {},
         "city" : {},
@@ -32,7 +32,7 @@
       "properties": {
         "name" : {},
         "company_name" : {},
-        "email" : {},
+        "email" : {"type":"string", "format": "email"},
         "phone" : {},
         "country" : {},
         "city" : {},

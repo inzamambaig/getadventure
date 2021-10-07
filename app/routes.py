@@ -57,6 +57,7 @@ def signin():
 @jsonschema.validate('touroperator', 'signup')
 @cross_origin()
 def signup():
+    a = 34/0
     name = request.json['name']
     company_name = request.json['company_name']
     email = request.json['email']
@@ -77,6 +78,7 @@ def signup():
 
     db.session.add(new_tour_operator)
     db.session.commit()
+
 
     return ({"Tour Operator": name, "message": "Created"})
 
