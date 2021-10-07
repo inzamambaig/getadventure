@@ -8,16 +8,12 @@ from app.models import Passport, passport_schema, passports_schema, Order, order
 from app.models import IteninaryDetails, iteninary_details, iteninarys_details, License, license_schema, licenses_schema
 from app.models import Tour, tour_schema, tours_schema
 
-
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
 from datetime import datetime, timedelta
 from werkzeug.security import safe_str_cmp
 from functools import wraps
 
-
-
 # CORS ON ALL ROUTES
-
 
 # Test Routes
 @app.route('/', methods=['GET'])
@@ -33,12 +29,13 @@ def signin():
     password = request.json['password']
 
     user = TourOperator.query.filter_by(email=email).first()
+
     if(not user):
         return ({
             "status": 400,
             "msg": "Username not found"
         })
-    
+
     additional_claims = {"name" : user.name, "company_name": user.company_name, "phone": user.phone, "website": user.website, "address": user.address, "city": user.city, "zip_code": user.zip_code, "country": user.country, "email": user.email, "facebook": user.facebook, "instagram": user.instagram, "linkedin": user.linkedin, "twitter": user.twitter }
     if (bcrypt.check_password_hash(user.password, password)):
         access_token = create_access_token(identity=user.email, additional_claims=additional_claims)
@@ -57,7 +54,6 @@ def signin():
 @jsonschema.validate('touroperator', 'signup')
 @cross_origin()
 def signup():
-    a = 34/0
     name = request.json['name']
     company_name = request.json['company_name']
     email = request.json['email']
@@ -427,6 +423,7 @@ def update_passport(id):
 # Delete a Passport
 @app.route('/passport/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_passport(id):
     passport = Passport.query.get(id)
 
@@ -438,6 +435,7 @@ def delete_passport(id):
 # Create an order
 @app.route('/order', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def new_order():
     user_id = request.json['user_id']
     total_price = request.json['total_price']
@@ -452,6 +450,7 @@ def new_order():
 # Get an order
 @app.route('/order/<id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_order(id):
     order = Order.query.get(id)
     return order_schema.jsonify(order)
@@ -459,6 +458,7 @@ def get_order(id):
 # Get all orders
 @app.route('/order', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_orders():
     orders = Order.query.all()
     order_list = orders_schema.dump(orders)
@@ -468,6 +468,7 @@ def get_orders():
 # Update an order
 @app.route('/order/<id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_order(id):
     order = Order.query.get(id)
     order.total_price = request.json['total_price']
@@ -479,6 +480,7 @@ def update_order(id):
 # Delete an order
 @app.route('/order/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_order(id):
     order = Order.query.get(id)
 
@@ -507,6 +509,7 @@ def new_tour():
 # Get all tours
 @app.route('/tour', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_tours():
     tours = Tour.query.all()
     tour_list = tours_schema.dump(tours)
@@ -516,6 +519,7 @@ def get_tours():
 # Get a tour
 @app.route('/tour/<id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_tour(id):
     tour = Tour.query.get(id)
     return order_schema.jsonify(tour)
@@ -523,6 +527,7 @@ def get_tour(id):
 # Update a tour
 @app.route('/tour/<id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_tour(id):
     tour = Tour.query.get(id)
 
@@ -536,6 +541,7 @@ def update_tour(id):
 # Delete a tour
 @app.route('/tour/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_tour(id):
     tour = Tour.query.get(id)
 
@@ -630,6 +636,7 @@ def delete_itenirary(id):
 # Create a license
 @app.route('/license', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def new_license():
     type = request.json.get('type')
     license_number = request.json.get('license_number')
@@ -649,6 +656,7 @@ def new_license():
 # Get all licenses
 @app.route('/license', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_licenses():
     licenses = License.query.all()
     license_list = licenses_schema.dump(licenses)
@@ -659,6 +667,7 @@ def get_licenses():
 # Get a license
 @app.route('/license/<id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_license(id):
     print(id)
     license = License.query.filter_by(tour_operator_id=id)
@@ -670,6 +679,7 @@ def get_license(id):
 # Update a license
 @app.route('/license/<id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_license(id):
     license = License.query.get(id)
 
@@ -686,6 +696,7 @@ def update_license(id):
 # Delete a license
 @app.route('/license/<id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_license(id):
     license = License.query.get(id)
 

@@ -8,7 +8,6 @@ from flask_jwt_extended import JWTManager
 from flask_jsonschema import JsonSchema, ValidationError
 from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from psycopg2.errors import UniqueViolation
 from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
@@ -26,7 +25,7 @@ app.config.from_object(Config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 db = SQLAlchemy(app)
-# Init Marshmallow
+
 ma = Marshmallow(app)
 
 jsonschema = JsonSchema(app)
@@ -40,14 +39,14 @@ def on_validation_error(e):
 @app.errorhandler(SQLAlchemyError)
 def on_sql_error(e):
     status = 502
-    msg = "Database Error Occured"
-    if(isinstance(e.orig, UniqueViolation)):
-        msg = "Data Already Exists"
+    msg = str(e)
+    if('\n' in msg):
+        msg = msg.split('\n')[1]
+        msg = msg[9:]
     return jsonify({"status": status, "error": msg})
 
 @app.errorhandler(HTTPException)
-def on_sql_error(e):
-    print(dir(e))
+def on_http_error(e):
     status = e.code
     msg = e.description
     return jsonify({"status": status, "error": msg})
