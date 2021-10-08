@@ -21,7 +21,8 @@ jwt = JWTManager(app)
 
 app.config.from_object(Config)
 
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+cors = CORS(app)
 
 db = SQLAlchemy(app)
 

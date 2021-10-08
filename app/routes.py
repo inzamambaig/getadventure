@@ -184,14 +184,7 @@ def get_iteninaries(id):
     iteninary_list = iteninarys_schema.dump(iteninary)
     return jsonify(iteninary_list)
 
-# Get All iteninaries
-@app.route('/iteninary', methods=['GET'])
-@jwt_required()
-@cross_origin()
-def get_all_iteninaries():
-    iteninary = Iteninary.query.all()
-    iteninary_list = iteninarys_schema.dump(iteninary)
-    return jsonify(iteninary_list)
+
 
 # Update an iteninary
 @app.route('/iteninary/<id>', methods=['PUT'])
@@ -234,6 +227,16 @@ def delete_itinerary(id):
 Admin
 """
 
+# Admin and Tourist
+# Get All iteninaries
+@app.route('/iteninary', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_all_iteninaries():
+    iteninary = Iteninary.query.all()
+    iteninary_list = iteninarys_schema.dump(iteninary)
+    return jsonify(iteninary_list)
+    
 # Get a single user
 @app.route('/user/<id>', methods=['GET'])
 @jwt_required()
