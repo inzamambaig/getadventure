@@ -1,37 +1,51 @@
 {
-    "create": {
-      "type": "object",
-      "properties": {
-        "booked": {},
-        "description": {},
-        "arrival_location":{},
-        "end_date": {},
-        "price": {},
-        "rating": {},
-        "start_date": {},
-        "title": {},
-        "total_days": {},
-        "tour_operator_id": {},
-        "hero_images": {},
-        "type": {}
-      },
-      "required": ["description", "arrival_location", "start_date", "end_date", "price", "title", "tour_operator_id", "type"]
+  "create": {
+    "type": "object",
+    "properties": {
+      "title": {},
+      "type": {},
+      "description": {},
+      "total_days": {},
+      "arrival_location": {},
+      "price": {},
+      "end_date": {},
+      "start_date": {},
+      "tour_operator_id": {},
+      "hero_images": {}
     },
-    "update": {
-        "type": "object",
-        "properties": {
-          "booked": {},
-          "description": {},
-          "arrival_location":{},
-          "end_date": {},
-          "price": {},
-          "rating": {},
-          "start_date": {},
-          "title": {},
-          "total_days": {},
-          "hero_images": {},
-          "type": {}
-        },
-        "required": ["description", "arrival_location", "start_date", "end_date", "price", "title", "type"]
-      }
+    "required": [
+      "description",
+      "arrival_location",
+      "start_date",
+      "end_date",
+      "price",
+      "title",
+      "tour_operator_id",
+      "type"
+    ]
+  },
+  "update": {
+    "type": "object",
+    "properties": {
+      "title": {},
+      "type": {},
+      "description": {},
+      "total_days": {},
+      "arrival_location": {},
+      "price": {},
+      "end_date": {},
+      "start_date": {},
+      "booked": {},
+      "hero_images": {}
+    },
+    "required": [
+      "description",
+      "arrival_location",
+      "start_date",
+      "end_date",
+      "price",
+      "title",
+      "type"
+    ]
+  }
 }

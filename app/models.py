@@ -1,6 +1,6 @@
 from app import db, ma, bcrypt
 # from enum import unique
-from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref, defaultload
 from datetime import datetime
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -18,7 +18,7 @@ class User(db.Model):
     phone = db.Column(db.String(15), nullable=True, unique=True)
     country = db.Column(db.String(30), nullable=True)
     gender = db.Column(db.String(10), nullable=True)
-    group = db.Column(db.Boolean, default=False, nullable=True)
+    # group = db.Column(db.Boolean, default=False, nullable=True)
     address = db.Column(db.String(300), nullable=True)
     date_of_birth = db.Column(db.DateTime, nullable=True)
     password = db.Column(db.String(255), nullable=False)
@@ -33,13 +33,13 @@ class User(db.Model):
 
 
 
-    def __init__(self, name, email, phone, country, gender, group, address, date_of_birth, password, zip_code):
+    def __init__(self, name, email, phone, country, gender, address, date_of_birth, password, zip_code):
         self.name = name
         self.email = email
         self.phone = phone
         self.country = country
         self.gender = gender
-        self.group = group
+        # self.group = group
         self.address = address
         self.date_of_birth = date_of_birth
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -77,13 +77,13 @@ class Iteninary(db.Model):
     title = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(400), nullable=False)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Integer, default=0)
     arrival_location = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     total_days = db.Column(db.Integer, default=start_date - end_date)
-    booked = db.Column(db.Boolean)
+    booked = db.Column(db.Boolean, default=False)
     hero_images = db.Column(db.String(300))
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
@@ -92,17 +92,15 @@ class Iteninary(db.Model):
     tour = db.relationship('Tour', backref='iteninary', lazy=True)
     iteninary_details = db.relationship('IteninaryDetails', backref='iteninary', lazy=True)
 
-    def __init__(self, title, type, description, rating, arrival_location, price, start_date, end_date, total_days, booked, hero_images, tour_operator_id):
+    def __init__(self, title, type, description, arrival_location, price, start_date, end_date, total_days, hero_images, tour_operator_id):
         self.title = title
         self.type = type
         self.description = description
-        self.rating = rating
         self.arrival_location = arrival_location
         self.price = price
         self.start_date = start_date
         self.end_date = end_date
         self.total_days = total_days
-        self.booked = booked
         self.hero_images = hero_images
         self.tour_operator_id = tour_operator_id
 
