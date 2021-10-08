@@ -1,0 +1,20 @@
+{
+    "create": {
+        "type": "object",
+        "properties": {
+            "start_date" : {},
+            "end_date" : {},
+            "order_id" : {}, 
+            "iteninary_id" : {}
+        },
+        "required": ["start_date", "end_date", "order_id", "iteninary_id"]
+    },
+    "update": {
+        "type": "object",
+        "properties": {
+            "start_date" : {},
+            "end_date" : {}
+        },
+        "required": ["start_date", "end_date" ]
+    }
+}

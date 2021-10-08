@@ -204,7 +204,7 @@ def update_iteninary(id):
     iteninary.title = request.json['title']
     iteninary.type = request.json['type']
     iteninary.description = request.json['description']
-    iteninary.tour_operator_id = request.json['tour_operator_id']
+    #iteninary.tour_operator_id = request.json['tour_operator_id']
     iteninary.title = request.json['title']
     iteninary.total_days = request.json['total_days']
     iteninary.rating = request.json['rating']
@@ -373,6 +373,7 @@ def delete_touroperator(id):
 # Create a Passport
 @app.route('/passport', methods=['POST'])
 @jwt_required()
+@jsonschema.validate('passport', 'create')
 @cross_origin()
 def new_passport():
     passport_number = request.json['passport_number']
@@ -380,7 +381,7 @@ def new_passport():
     expiry_date = request.json['expiry_date']
     user_id = request.json['user_id']
 
-    passport = Passport(passport_number, issue_date, expiry_date, user_id)
+    passport = Passport(passport_number, issue_date, expiry_date, user_id) 
     db.session.add(passport)
     db.session.commit()
 
@@ -408,6 +409,7 @@ def get_passport(id):
 # Update a Passport
 @app.route('/passport/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('passport', 'update')
 @cross_origin()
 def update_passport(id):
     passport = Passport.query.get(id)
@@ -435,6 +437,7 @@ def delete_passport(id):
 # Create an order
 @app.route('/order', methods=['POST'])
 @jwt_required()
+@jsonschema.validate('order', 'create')
 @cross_origin()
 def new_order():
     user_id = request.json['user_id']
@@ -468,6 +471,7 @@ def get_orders():
 # Update an order
 @app.route('/order/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('order', 'update')
 @cross_origin()
 def update_order(id):
     order = Order.query.get(id)
@@ -492,6 +496,7 @@ def delete_order(id):
 # Create a tour
 @app.route('/tour', methods=['POST'])
 @jwt_required()
+@jsonschema.validate('tour', 'create')
 @cross_origin()
 def new_tour():
     order_id = request.json['order_id']
@@ -504,7 +509,7 @@ def new_tour():
     db.session.add(tour)
     db.session.commit()
 
-    return ({"Passport": order_id, "message": "Created Successfully"})
+    return ({"Tour": order_id, "message": "Created Successfully"})
 
 # Get all tours
 @app.route('/tour', methods=['GET'])
@@ -527,12 +532,13 @@ def get_tour(id):
 # Update a tour
 @app.route('/tour/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('tour', 'update')
 @cross_origin()
 def update_tour(id):
     tour = Tour.query.get(id)
 
-    tour.order_id = request.json['order_id']
-    tour.iteninary_id = request.json['iteninary_id']
+    #tour.order_id = request.json['order_id']
+    #tour.iteninary_id = request.json['iteninary_id']
     tour.start_date = request.json['start_date']
     tour.end_date = request.json['end_date']
 
@@ -548,7 +554,7 @@ def delete_tour(id):
     db.session.delete(tour)
     db.session.commit()
 
-    return ({"Order": id, "message": "Deleted Successfully"})
+    return ({"Tour": id, "message": "Deleted Successfully"})
 
 # Create a itenirary_detail
 @app.route('/iteninary_detail', methods=['POST'])
@@ -607,7 +613,7 @@ def get_iteninary_detail(id):
 def update_itenirary_detail(id):
     iteninarydetail = IteninaryDetails.query.get(id)
 
-    iteninarydetail.iteninary_id = request.json.get('iteninary_id')
+    #iteninarydetail.iteninary_id = request.json.get('iteninary_id')
     iteninarydetail.day = request.json.get('day')
     iteninarydetail.description = request.json.get('description')
     iteninarydetail.accomodation = request.json.get('accomodation')
@@ -626,7 +632,7 @@ def update_itenirary_detail(id):
 @jwt_required()
 @cross_origin()
 def delete_itenirary(id):
-    iteninarydetail = IteninaryDetails.query.get(iteninary_id=id)
+    iteninarydetail = IteninaryDetails.query.get(id)
 
     db.session.delete(iteninarydetail)
     db.session.commit()
@@ -636,16 +642,14 @@ def delete_itenirary(id):
 # Create a license
 @app.route('/license', methods=['POST'])
 @jwt_required()
+@jsonschema.validate('license', 'create')
 @cross_origin()
 def new_license():
     type = request.json.get('type')
     license_number = request.json.get('license_number')
-    issue_date = request.json.get('issue_date')
-    expiry_date = request.json.get('expire_date')
     tour_operator_id = request.json.get('tour_operator_id')
 
-    license = License(type, license_number, issue_date,
-                      expiry_date, tour_operator_id)
+    license = License(type, license_number, tour_operator_id)
 
     db.session.add(license)
     db.session.commit()
@@ -675,19 +679,17 @@ def get_license(id):
 
     return jsonify(licenses)
 
-
 # Update a license
 @app.route('/license/<id>', methods=['PUT'])
 @jwt_required()
+@jsonschema.validate('license', 'update')
 @cross_origin()
 def update_license(id):
     license = License.query.get(id)
 
-    license.type = request.json.get('type')
     license.license_number = request.json.get('license_number')
-    license.issue_date = request.json.get('issue_date')
-    license.expiry_date = request.json.get('expire_date')
-    license.tour_operator_id = request.json.get('tour_operator_id')
+    license.type = request.json.get('type')
+    #license.tour_operator_id = request.json.get('tour_operator_id')
 
     db.session.commit()
 

@@ -21,10 +21,9 @@
           "day": {},
           "description": {},
           "dinner": {},
-          "iteninary_id": {},
           "lunch": {},
           "other_meals": {}
         },
-        "required": ["accomodation", "day", "description", "iteninary_id"]
+        "required": ["accomodation", "day", "description"]
       }
 }

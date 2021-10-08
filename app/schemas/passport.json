@@ -1,0 +1,21 @@
+{
+    "create": {
+        "type": "object",
+        "properties": {
+            "passport_number" : {},
+            "issue_date" : {},
+            "expiry_date" : {}, 
+            "user_id" : {}
+        },
+        "required": ["passport_number", "issue_date", "expiry_date", "user_id"]
+    },
+    "update": {
+        "type": "object",
+        "properties": {
+            "passport_number" : {},
+            "issue_date" : {},
+            "expiry_date" : {}
+        },
+        "required": ["passport_number", "issue_date", "expiry_date"]
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "create": {
+        "type": "object",
+        "properties": {
+            "type": {},
+            "license_number" : {}, 
+            "tour_operator_id" : {}
+        },
+        "required": ["type", "license_number", "tour_operator_id"]
+    },
+    "update": {
+        "type": "object",
+        "properties": {
+            "type": {},
+            "license_number" : {}
+        },
+        "required": ["type", "license_number"]
+    }
+}

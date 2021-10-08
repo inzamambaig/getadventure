@@ -1,0 +1,17 @@
+{
+    "create": {
+        "type": "object",
+        "properties": {
+          "total_price": {},
+          "user_id": {}
+        },
+        "required": ["user_id"]
+    },
+    "update": {
+        "type": "object",
+        "properties": {
+          "total_price": {}
+        },
+        "required": []
+    }
+}
