@@ -1,0 +1,1 @@
+Itinerary_status = {1:"Open", 2: "Booked", 3: "Process", 9: "Other"}

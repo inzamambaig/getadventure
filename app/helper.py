@@ -20,16 +20,18 @@ def on_sql_error(e):
 def on_sql_error(e):
     status = 502
     msg = str(e)
-    if('\n' in msg):
-        msg = msg.split('\n')[1]
     return jsonify({"status": status, "error": msg})
 
 @app.errorhandler(TypeError)
 def on_sql_error(e):
     status = 502
     msg = str(e)
-    if('\n' in msg):
-        msg = msg.split('\n')[1]
+    return jsonify({"status": status, "error": msg})
+
+@app.errorhandler(NameError)
+def on_sql_error(e):
+    status = 502
+    msg = str(e)
     return jsonify({"status": status, "error": msg})
 
 @app.errorhandler(HTTPException)

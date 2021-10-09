@@ -46,7 +46,7 @@ def signin():
             "message": "login successful"
             })
     else:
-        return jsonify({"msg": "Invalid password"})
+        return jsonify({"status": 401, "msg": "Invalid password"})
 
 
 # Tour Operator Sign Up
@@ -149,7 +149,7 @@ def delete_group(id):
 
 
 # Create new iteninary
-@app.route('/iteninary', methods=['POST'])
+@app.route('/itinerary', methods=['POST'])
 @jwt_required()
 @jsonschema.validate('itinerary', 'create')
 @cross_origin()
@@ -159,17 +159,15 @@ def new_iteninary():
     description = request.json['description']
     title = request.json['title']
     total_days = request.json['total_days']
-    rating = request.json['rating']
     arrival_location = request.json['arrival_location']
     price = request.json['price']
     end_date = request.json['end_date']
     start_date = request.json['start_date']
-    booked = request.json['booked']
     hero_images = request.json['hero_images']
     tour_operator_id = request.json['tour_operator_id']
 
-    iteninary = Iteninary(title, type, description, rating, arrival_location, price,
-                          start_date, end_date, total_days, booked, hero_images, tour_operator_id)
+    iteninary = Iteninary(title, type, description, arrival_location, price,
+                          start_date, end_date, total_days, hero_images, tour_operator_id)
 
     db.session.add(iteninary)
     db.session.commit()
@@ -182,9 +180,19 @@ def new_iteninary():
 def get_iteninaries(id):
     iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
     iteninary_list = iteninarys_schema.dump(iteninary)
-    return jsonify(iteninary_list)
 
+    available = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 1)).count()         #Data for dashboard
+    booked = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 2)).count()
+    inprocess = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 3)).count()
+    completed = Tour.query.join(Iteninary).filter((Iteninary.tour_operator_id==id) & (Tour.end_date < datetime.now()) & (Tour.canceled == 0)).count()
 
+    return jsonify({
+        "Available":available,
+        "Booked":booked,
+        "Inprocess":inprocess,
+        "Completed":completed,
+        "Itineraries":iteninary_list
+    })
 
 # Update an iteninary
 @app.route('/iteninary/<id>', methods=['PUT'])
@@ -200,12 +208,12 @@ def update_iteninary(id):
     #iteninary.tour_operator_id = request.json['tour_operator_id']
     iteninary.title = request.json['title']
     iteninary.total_days = request.json['total_days']
-    iteninary.rating = request.json['rating']
+    #iteninary.rating = request.json['rating']
     iteninary.arrival_location = request.json['arrival_location']
     iteninary.price = request.json['price']
     iteninary.end_date = request.json['end_date']
     iteninary.start_date = request.json['start_date']
-    iteninary.booked = request.json['booked']
+    #iteninary.itinerary_status = request.json['itinenary_status']
     iteninary.hero_images = request.json['hero_images']
 
     db.session.commit()
