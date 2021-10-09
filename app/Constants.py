@@ -1,1 +1,1 @@
-Itinerary_status = {1:"Open", 2: "Booked", 3: "Process", 9: "Other"}
+Itinerary_status = {1:"Available", 2: "Booked", 3: "Process", 4: "Archived"}

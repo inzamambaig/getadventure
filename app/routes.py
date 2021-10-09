@@ -213,7 +213,7 @@ def update_iteninary(id):
     iteninary.price = request.json['price']
     iteninary.end_date = request.json['end_date']
     iteninary.start_date = request.json['start_date']
-    #iteninary.itinerary_status = request.json['itinenary_status']
+    iteninary.itinerary_status = request.json['itinenary_status']
     iteninary.hero_images = request.json['hero_images']
 
     db.session.commit()
