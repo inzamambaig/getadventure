@@ -77,13 +77,13 @@ class Iteninary(db.Model):
     title = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(400), nullable=False)
-    rating = db.Column(db.Integer, default=0)
+    rating = db.Column(db.Integer, default = 0)
     arrival_location = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     total_days = db.Column(db.Integer, default=start_date - end_date)
-    booked = db.Column(db.Boolean, default=False)
+    itinerary_status = db.Column(db.Integer, default = 1)
     hero_images = db.Column(db.String(300))
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
@@ -107,7 +107,7 @@ class Iteninary(db.Model):
 # Schema
 class IteninarySchema(ma.Schema):
     class Meta:
-        fields = ('id', 'title', 'type', 'description', 'rating', 'arrival', 'price', 'start_date', 'end_date', 'total_days', 'booked', 'tour_operator_id')
+        fields = ('id', 'title', 'type', 'description', 'rating', 'arrival', 'price', 'start_date', 'end_date', 'total_days', 'itinerary_status', 'hero_images', 'tour_operator_id')
 
 # Initialize Schema
 iteninary_schema = IteninarySchema()
@@ -225,6 +225,7 @@ class Tour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
+    canceled = db.Column(db.Integer, default = 0)
     created_at = db.Column(db.DateTime, default = datetime.now)
     updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
@@ -239,7 +240,7 @@ class Tour(db.Model):
 
 class TourSchema(ma.Schema):
     class Meta:
-        fields = ('tour_id', 'start_date', 'end_date', 'order_id', 'iteninary_id')
+        fields = ('tour_id', 'start_date', 'end_date', 'order_id', 'iteninary_id', 'canceled')
 
 tour_schema = TourSchema()
 tours_schema = TourSchema(many=True)

@@ -52,7 +52,7 @@ def signin():
             "message": "login successful"
             })
     else:
-        return jsonify({"msg": "Invalid password"})
+        return jsonify({"status": 401, "msg": "Invalid password"})
 
 
 # Tour Operator Sign Up
@@ -152,10 +152,21 @@ def new_iteninary():
 def get_iteninaries(id):
     iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
     iteninary_list = iteninarys_schema.dump(iteninary)
-    return jsonify(iteninary_list)
 
+    available = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 1)).count()         #Data for dashboard
+    booked = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 2)).count()
+    inprocess = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 3)).count()
+    completed = Tour.query.join(Iteninary).filter((Iteninary.tour_operator_id==id) & (Tour.end_date < datetime.now()) & (Tour.canceled == 0)).count()
 
-# Update an Itinerary 
+    return jsonify({
+        "Available":available,
+        "Booked":booked,
+        "Inprocess":inprocess,
+        "Completed":completed,
+        "Itineraries":iteninary_list
+    })
+
+# Update an iteninary
 @app.route('/iteninary/<id>', methods=['PUT'])
 @jwt_required()
 @jsonschema.validate('itinerary', 'update')
@@ -167,11 +178,12 @@ def update_iteninary(id):
     iteninary.type = request.json['type']
     iteninary.description = request.json['description']
     iteninary.total_days = request.json['total_days']
+    #iteninary.rating = request.json['rating']
     iteninary.arrival_location = request.json['arrival_location']
     iteninary.price = request.json['price']
     iteninary.end_date = request.json['end_date']
     iteninary.start_date = request.json['start_date']
-    iteninary.booked = request.json['booked']
+    iteninary.itinerary_status = request.json['itinenary_status']
     iteninary.hero_images = request.json['hero_images']
 
     db.session.commit()
