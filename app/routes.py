@@ -178,7 +178,7 @@ def update_iteninary(id):
     return jsonify({"Iteninary": id, "message": "Updated Successfully"})
 
 # Delete iteninary
-@app.route('/iteninary/<id>', methods=['DELETE'])
+@app.route('/itinerary/<id>', methods=['DELETE'])
 @jwt_required()
 @cross_origin()
 def delete_itinerary(id):
@@ -198,7 +198,7 @@ Admin
 # Admin and Tourist
 
 # Get All iteninaries
-@app.route('/iteninary', methods=['GET'])
+@app.route('/itinerary', methods=['GET'])
 @jwt_required()
 @cross_origin()
 def get_all_iteninaries():
