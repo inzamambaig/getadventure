@@ -84,7 +84,7 @@ class Iteninary(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     total_days = db.Column(db.Integer, default=start_date - end_date)
     itinerary_status = db.Column(db.Integer, default = 1)
-    hero_images = db.Column(db.String(300))
+    hero_images = db.Column(db.LargeBinary(300))
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
     created_at = db.Column(db.DateTime, default = datetime.now)

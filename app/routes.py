@@ -12,6 +12,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from datetime import datetime, timedelta
 from werkzeug.security import safe_str_cmp
 from functools import wraps
+import base64
 
 # CORS ON ALL ROUTES
 
@@ -151,20 +152,19 @@ def delete_group(id):
 # Create new iteninary
 @app.route('/itinerary', methods=['POST'])
 @jwt_required()
-@jsonschema.validate('itinerary', 'create')
+#@jsonschema.validate('itinerary', 'create')
 @cross_origin()
 def new_iteninary():
-    title = request.json['title']
-    type = request.json['type']
-    description = request.json['description']
-    title = request.json['title']
-    total_days = request.json['total_days']
-    arrival_location = request.json['arrival_location']
-    price = request.json['price']
-    end_date = request.json['end_date']
-    start_date = request.json['start_date']
-    hero_images = request.json['hero_images']
-    tour_operator_id = request.json['tour_operator_id']
+    title = request.form.get("title")
+    type = request.form.get("type")
+    description = request.form.get("description")
+    total_days = request.form.get("total_days")
+    arrival_location = request.form.get("arrival_location")
+    price = request.form.get("price")
+    end_date = request.form.get("end_date")
+    start_date = request.form.get("start_date")
+    hero_images = request.files['hero_images'].read()
+    tour_operator_id = request.form.get("tour_operator_id")
 
     iteninary = Iteninary(title, type, description, arrival_location, price,
                           start_date, end_date, total_days, hero_images, tour_operator_id)
@@ -173,54 +173,47 @@ def new_iteninary():
     db.session.commit()
     return ({"Iteninary": title, "message": "Created Successfully"})
 
-# Get Single iteninaries
-@app.route('/iteninary/<id>', methods=['GET'])
+# Get iteninaries
+@app.route('/itinerary/<id>', methods=['GET'])
 @jwt_required()
 @cross_origin()
 def get_iteninaries(id):
     iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
-    iteninary_list = iteninarys_schema.dump(iteninary)
-
-    available = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 1)).count()         #Data for dashboard
+    
     booked = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 2)).count()
     inprocess = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 3)).count()
-    completed = Tour.query.join(Iteninary).filter((Iteninary.tour_operator_id==id) & (Tour.end_date < datetime.now()) & (Tour.canceled == 0)).count()
+
+    iteninary_list = iteninarys_schema.dump(iteninary)
 
     return jsonify({
-        "Available":available,
         "Booked":booked,
-        "Inprocess":inprocess,
-        "Completed":completed,
-        "Itineraries":iteninary_list
+        "Inprocess":inprocess
     })
 
 # Update an iteninary
-@app.route('/iteninary/<id>', methods=['PUT'])
+@app.route('/itinerary/<id>', methods=['PUT'])
 @jwt_required()
-@jsonschema.validate('itinerary', 'update')
+#@jsonschema.validate('itinerary', 'update')
 @cross_origin()
 def update_iteninary(id):
     iteninary = Iteninary.query.get(id)
-
-    iteninary.title = request.json['title']
-    iteninary.type = request.json['type']
-    iteninary.description = request.json['description']
-    #iteninary.tour_operator_id = request.json['tour_operator_id']
-    iteninary.title = request.json['title']
-    iteninary.total_days = request.json['total_days']
-    #iteninary.rating = request.json['rating']
-    iteninary.arrival_location = request.json['arrival_location']
-    iteninary.price = request.json['price']
-    iteninary.end_date = request.json['end_date']
-    iteninary.start_date = request.json['start_date']
-    iteninary.itinerary_status = request.json['itinenary_status']
-    iteninary.hero_images = request.json['hero_images']
+    
+    iteninary.title = request.form.get("title")
+    iteninary.type = request.form.get("type")
+    iteninary.description = request.form.get("description")
+    iteninary.total_days = request.form.get("total_days")
+    iteninary.arrival_location = request.form.get("arrival_location")
+    iteninary.price = request.form.get("price")
+    iteninary.start_date = request.form.get("start_date")
+    iteninary.end_date = request.form.get("end_date")
+    iteninary.hero_images = request.files['hero_images'].read()
+#    tour_operator_id = request.form.get("tour_operator_id")
 
     db.session.commit()
     return ({"Iteninary": id, "message": "Updated Successfully"})
 
 # Delete iteninary
-@app.route('/iteninary/<id>', methods=['DELETE'])
+@app.route('/itinerary/<id>', methods=['DELETE'])
 @jwt_required()
 @cross_origin()
 def delete_itinerary(id):
@@ -244,7 +237,7 @@ def get_all_iteninaries():
     iteninary = Iteninary.query.all()
     iteninary_list = iteninarys_schema.dump(iteninary)
     return jsonify(iteninary_list)
-    
+
 # Get a single user
 @app.route('/user/<id>', methods=['GET'])
 @jwt_required()
@@ -331,7 +324,7 @@ def new_touroperator():
 @cross_origin()
 def get_touroperators():
     touroperators = TourOperator.query.all()
-    touroperator_list = touroperators_schema .dump(touroperators)
+    touroperator_list = touroperators_schema.dump(touroperators)
     return jsonify(touroperator_list)
 
 # Get a single Tour Operator
