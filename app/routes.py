@@ -101,11 +101,11 @@ def new_user():
     date_of_birth = request.json['date_of_birth']
     email = request.json['email']
     gender = request.json['gender']
-    group = request.json['group']
+    # group = request.json['group']
     phone = request.json['phone']
     zip_code = request.json['zip_code']
 
-    new_user = User(name, email, phone, country, gender, group,
+    new_user = User(name, email, phone, country, gender,
                     address, date_of_birth, password, zip_code)
 
     db.session.add(new_user)

@@ -292,3 +292,4 @@ class TourOperatorSchema(ma.Schema):
 
 touroperator_schema = TourOperatorSchema()
 touroperators_schema = TourOperatorSchema(many=True)
+
