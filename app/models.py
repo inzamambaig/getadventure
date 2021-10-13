@@ -1,6 +1,6 @@
 from app import db, ma, bcrypt
 # from enum import unique
-from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref, defaultload
 from datetime import datetime
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -18,7 +18,7 @@ class User(db.Model):
     phone = db.Column(db.String(15), nullable=True, unique=True)
     country = db.Column(db.String(30), nullable=True)
     gender = db.Column(db.String(10), nullable=True)
-    group = db.Column(db.Boolean, default=False, nullable=True)
+    # group = db.Column(db.Boolean, default=False, nullable=True)
     address = db.Column(db.String(300), nullable=True)
     date_of_birth = db.Column(db.DateTime, nullable=True)
     password = db.Column(db.String(255), nullable=False)
@@ -33,13 +33,13 @@ class User(db.Model):
 
 
 
-    def __init__(self, name, email, phone, country, gender, group, address, date_of_birth, password, zip_code):
+    def __init__(self, name, email, phone, country, gender, address, date_of_birth, password, zip_code):
         self.name = name
         self.email = email
         self.phone = phone
         self.country = country
         self.gender = gender
-        self.group = group
+        # self.group = group
         self.address = address
         self.date_of_birth = date_of_birth
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -84,7 +84,7 @@ class Iteninary(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     total_days = db.Column(db.Integer, default=start_date - end_date)
     itinerary_status = db.Column(db.Integer, default = 1)
-    hero_images = db.Column(db.LargeBinary(300))
+    hero_images = db.Column(db.LargeBinary())
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
     created_at = db.Column(db.DateTime, default = datetime.now)
@@ -144,6 +144,23 @@ class IteninaryDetailsSchema(ma.Schema):
 
 iteninary_details = IteninaryDetailsSchema()
 iteninarys_details = IteninaryDetailsSchema(many=True)
+
+class Images(db.Model):
+    _tablename_ = 'images'
+    id = db.Column(db.Integer, primary_key=True)
+    image = db.Column(db.LargeBinary())
+    iteninary_id = db.Column(db.Integer, db.ForeignKey('iteninary.id'), nullable=False)
+
+    def __init__(self, image, iteninary_id):
+        self.image = image
+        self.iteninary_id = iteninary_id
+
+class ImageSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'image', 'iteninary_id')
+
+image_schema = ImageSchema()
+images_schema = ImageSchema(many=True)
 
 class License(db.Model):
     __tablename__ = 'license'
@@ -292,3 +309,4 @@ class TourOperatorSchema(ma.Schema):
 
 touroperator_schema = TourOperatorSchema()
 touroperators_schema = TourOperatorSchema(many=True)
+
