@@ -29,9 +29,7 @@ class User(db.Model):
     passport = db.relationship('Passport', backref='user', uselist=False, lazy=True)
     groups = db.relationship('Group', secondary=groups, lazy='subquery',
         backref=db.backref('user', lazy=True))
-    orders = db.relationship('Order', backref='user', lazy=True)
-
-
+    #orders = db.relationship('Order', backref='user', lazy=True)
 
     def __init__(self, name, email, phone, country, gender, address, date_of_birth, password, zip_code):
         self.name = name
@@ -84,6 +82,7 @@ class Iteninary(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     total_days = db.Column(db.Integer, default=start_date - end_date)
     itinerary_status = db.Column(db.Integer, default = 1)
+    inprocess = db.Column(db.Integer, default = 0)
     hero_images = db.Column(db.LargeBinary())
     tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'),
         nullable=False)
@@ -107,7 +106,7 @@ class Iteninary(db.Model):
 # Schema
 class IteninarySchema(ma.Schema):
     class Meta:
-        fields = ('id', 'title', 'type', 'description', 'rating', 'arrival', 'price', 'start_date', 'end_date', 'total_days', 'itinerary_status', 'hero_images', 'tour_operator_id')
+        fields = ('id', 'title', 'type', 'description', 'rating', 'arrival', 'price', 'start_date', 'end_date', 'total_days', 'itinerary_status', 'inprocess', 'hero_images', 'tour_operator_id')
 
 # Initialize Schema
 iteninary_schema = IteninarySchema()
@@ -190,27 +189,27 @@ class LicenseSchema(ma.Schema):
 license_schema = LicenseSchema()
 licenses_schema = LicenseSchema(many=True)
 
-class Order(db.Model):
-    __tablename__ = 'order'
-    id = db.Column(db.Integer, primary_key=True)
-    total_price = db.Column(db.Float)
-    created_at = db.Column(db.DateTime, default = datetime.now)
-    updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    tours = db.relationship('Tour', backref='order', lazy=True)
+# class Order(db.Model):
+#     __tablename__ = 'order'
+#     id = db.Column(db.Integer, primary_key=True)
+#     total_price = db.Column(db.Float)
+#     created_at = db.Column(db.DateTime, default = datetime.now)
+#     updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+#     tours = db.relationship('Tour', backref='order', lazy=True)
 
-    def __init__(self, total_price, user_id):
-        self.total_price = total_price
-        self.user_id = user_id
+#     def __init__(self, total_price, user_id):
+#         self.total_price = total_price
+#         self.user_id = user_id
 
-# Schema
-class OrderSchema(ma.Schema):
-    class Meta:
-        fields = ('total_price', 'user_id')
+# # Schema
+# class OrderSchema(ma.Schema):
+#     class Meta:
+#         fields = ('total_price', 'user_id')
 
-# Initiliaze Schema
-order_schema = OrderSchema()
-orders_schema = OrderSchema(many=True)
+# # Initiliaze Schema
+# order_schema = OrderSchema()
+# orders_schema = OrderSchema(many=True)
 
 class Passport(db.Model):
     __tablename__ = 'passport'
@@ -242,22 +241,25 @@ class Tour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
-    canceled = db.Column(db.Integer, default = 0)
+    tour_status = db.Column(db.Integer, default = 1)
+    price = db.Column(db.Integer, default = 0)
     created_at = db.Column(db.DateTime, default = datetime.now)
     updated_at = db.Column(db.DateTime, default = datetime.now, onupdate = datetime.now)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    # order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    tour_operator_id = db.Column(db.Integer, db.ForeignKey('touroperator.id'), nullable=False)
     iteninary_id = db.Column(db.Integer, db.ForeignKey('iteninary.id'), nullable=False)
 
-
-    def __init__(self, start_date, end_date, order_id, iteninary_id):
+    def __init__(self, start_date, end_date, price, tour_operator_id, iteninary_id): #  order_id,
         self.start_date = start_date
         self.end_date = end_date
-        self.order_id = order_id
+        self.tour_operator_id = tour_operator_id
+        self.price = price
         self.iteninary_id = iteninary_id
+    #    self.order_id = order_id
 
 class TourSchema(ma.Schema):
     class Meta:
-        fields = ('tour_id', 'start_date', 'end_date', 'order_id', 'iteninary_id', 'canceled')
+        fields = ('tour_id', 'start_date', 'end_date', 'price', 'tour_operator_id', 'iteninary_id', 'tour_status')  # 'order_id',
 
 tour_schema = TourSchema()
 tours_schema = TourSchema(many=True)
@@ -309,4 +311,3 @@ class TourOperatorSchema(ma.Schema):
 
 touroperator_schema = TourOperatorSchema()
 touroperators_schema = TourOperatorSchema(many=True)
-

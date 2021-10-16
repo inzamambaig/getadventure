@@ -4,7 +4,7 @@ from app import app, db, bcrypt, jwt, cors, jsonschema
 from flask import Flask, json, jsonify, request, make_response, Response
 from app.models import User, user_schema, users_schema, Group, group_schema, groups_schema
 from app.models import Iteninary, iteninary_schema, iteninarys_schema, TourOperator, touroperator_schema, touroperators_schema
-from app.models import Passport, passport_schema, passports_schema, Order, order_schema, orders_schema
+from app.models import Passport, passport_schema, passports_schema #, Order, order_schema, orders_schema
 from app.models import IteninaryDetails, iteninary_details, iteninarys_details, License, license_schema, licenses_schema
 from app.models import Tour, tour_schema, tours_schema, Images, image_schema, images_schema
 
@@ -22,7 +22,7 @@ from colour import Color
 def get():
     return jsonify({'msg': 'hello world'})
 
-""" 
+"""
     Tour Operator
 """
 
@@ -109,10 +109,9 @@ def new_user():
 
     return jsonify({"Tour Operator": name, "message": "Created"})
 
-"""  
+    """
     Itinerary
-
-"""
+    """
 
 # Create new iteninary
 @app.route('/itinerary', methods=['POST'])
@@ -143,16 +142,19 @@ def new_iteninary():
 @jwt_required()
 @cross_origin()
 def get_iteninaries(id):
-    iteninary = Iteninary.query.filter_by(tour_operator_id=id).all()
-    
+    iteninary = Iteninary.query.with_entities(Iteninary.id, Iteninary.title, Iteninary.type, Iteninary.description, Iteninary.rating, Iteninary.arrival_location, Iteninary.price, Iteninary.start_date, Iteninary.end_date, Iteninary.total_days, Iteninary.itinerary_status, Iteninary.inprocess, Iteninary.tour_operator_id).filter_by(tour_operator_id=id).all()
+
     booked = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 2)).count()
-    inprocess = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.itinerary_status == 3)).count()
+    inprocess = Iteninary.query.filter((Iteninary.tour_operator_id==id) & (Iteninary.inprocess == 1)).count()
+    completed = Tour.query.filter((Tour.tour_operator_id==id) & (Tour.tour_status == 1)).count()
 
     iteninary_list = iteninarys_schema.dump(iteninary)
-
+    
     return jsonify({
         "Booked":booked,
-        "Inprocess":inprocess
+        "Inprocess":inprocess,
+        "completed":completed, 
+        "data": iteninary_list
     })
 
 # Update an iteninary
@@ -196,7 +198,7 @@ Read and Write Image
 @app.route('/image', methods=['POST'])
 @cross_origin()
 def create_image():
-    image = request.files['hero_images'].read()
+    image = request.files['image'].read()
     iteninary_id = request.form.get('itinerary_id')
     
     images = Images(image, iteninary_id)
@@ -210,17 +212,18 @@ def create_image():
 @app.route("/image/<id>", methods=['GET'])
 @cross_origin()
 def get_image(id):
-    image = Images.query.filter_by(iteninary_id=id).first()
+    images = Images.query.filter_by(iteninary_id=id).first()
     #image_list = images_schema.dump(images)
 
     #return jsonify(image_list)
     #image_binary = read_image(image)
-    
-    response = make_response(image.image)
-    
+
+    #return images.image
+
+    response = make_response(images.image)
     response.headers.set('Content-Type', 'image/jpeg')
     response.headers.set(
-        'Content-Disposition', 'attachment', filename='%s.jpg' % image)
+       'Content-Disposition', 'attachment', filename='%s.jpg' % id)
     return response
 
 """ 
@@ -406,79 +409,81 @@ def delete_passport(id):
 
     return jsonify({"Passport": id, "message": "Deleted Successfully"})
 
-# Create an order
-@app.route('/order', methods=['POST'])
-@jwt_required()
-@cross_origin()
-def new_order():
-    user_id = request.json['user_id']
-    total_price = request.json['total_price']
+# # Create an order
+# @app.route('/order', methods=['POST'])
+# @jwt_required()
+# @cross_origin()
+# def new_order():
+#     user_id = request.json['user_id']
+#     total_price = request.json['total_price']
 
-    order = Order(total_price, user_id)
+#     order = Order(total_price, user_id)
 
-    db.session.add(order)
-    db.session.commit()
+#     db.session.add(order)
+#     db.session.commit()
 
-    return jsonify({"Order": user_id, "message": "Created Successfully"})
+#     return jsonify({"Order": user_id, "message": "Created Successfully"})
 
-# Get an order
-@app.route('/order/<id>', methods=['GET'])
-@jwt_required()
-@cross_origin()
-def get_order(id):
-    order = Order.query.get(id)
-    return order_schema.jsonify(order)
+# # Get an order
+# @app.route('/order/<id>', methods=['GET'])
+# @jwt_required()
+# @cross_origin()
+# def get_order(id):
+#     order = Order.query.get(id)
+#     return order_schema.jsonify(order)
 
-# Get all orders
-@app.route('/order', methods=['GET'])
-@jwt_required()
-@cross_origin()
-def get_orders():
-    orders = Order.query.all()
-    order_list = orders_schema.dump(orders)
+# # Get all orders
+# @app.route('/order', methods=['GET'])
+# @jwt_required()
+# @cross_origin()
+# def get_orders():
+#     orders = Order.query.all()
+#     order_list = orders_schema.dump(orders)
 
-    return jsonify(order_list)
+#     return jsonify(order_list)
 
-# Update an order
-@app.route('/order/<id>', methods=['PUT'])
-@jwt_required()
-@cross_origin()
-def update_order(id):
-    order = Order.query.get(id)
-    order.total_price = request.json['total_price']
+# # Update an order
+# @app.route('/order/<id>', methods=['PUT'])
+# @jwt_required()
+# @cross_origin()
+# def update_order(id):
+#     order = Order.query.get(id)
+#     order.total_price = request.json['total_price']
 
-    db.session.commit()
+#     db.session.commit()
 
-    return jsonify({"Order": id, "message": "Updated Successfully"})
+#     return jsonify({"Order": id, "message": "Updated Successfully"})
 
-# Delete an order
-@app.route('/order/<id>', methods=['DELETE'])
-@jwt_required()
-@cross_origin()
-def delete_order(id):
-    order = Order.query.get(id)
+# # Delete an order
+# @app.route('/order/<id>', methods=['DELETE'])
+# @jwt_required()
+# @cross_origin()
+# def delete_order(id):
+#     order = Order.query.get(id)
 
-    db.session.delete(order)
-    db.session.commit()
+#     db.session.delete(order)
+#     db.session.commit()
 
-    return ({"Order": id, "message": "Deleted Successfully"})
+#     return ({"Order": id, "message": "Deleted Successfully"})
 
 # Create a tour
 @app.route('/tour', methods=['POST'])
 @jwt_required()
 @cross_origin()
 def new_tour():
-    order_id = request.json['order_id']
-    iteninary_id = request.json['iteninary_id']
+#    order_id = request.json['order_id']
     start_date = request.json['start_date']
     end_date = request.json['end_date']
+    price = request.json['iteninary_id']
+    iteninary_id = request.json['iteninary_id']
+    tour_operator_id = request.json['tour_operator_id']
 
-    tour = Tour(start_date, end_date, order_id, iteninary_id)
+    tour = Tour(start_date, end_date, iteninary_id) #order_id, 
 
     db.session.add(tour)
     db.session.commit()
 
-    return jsonify({"Order": order_id, "message": "Created Successfully"})
+    return jsonify({ "message": "Created Successfully"})
 
 # Get all tours
 @app.route('/tour', methods=['GET'])
@@ -496,7 +501,7 @@ def get_tours():
 @cross_origin()
 def get_tour(id):
     tour = Tour.query.get(id)
-    return order_schema.jsonify(tour)
+    return tour_schema.jsonify(tour)
 
 # Update a tour
 @app.route('/tour/<id>', methods=['PUT'])
@@ -504,11 +509,11 @@ def get_tour(id):
 @cross_origin()
 def update_tour(id):
     tour = Tour.query.get(id)
-
-    tour.order_id = request.json['order_id']
-    tour.iteninary_id = request.json['iteninary_id']
+    #    tour.order_id = request.json['order_id']
+    #    tour.iteninary_id = request.json['iteninary_id']
     tour.start_date = request.json['start_date']
     tour.end_date = request.json['end_date']
+    tour.price = request.json['price']
 
     return ({"Tour": id, "message": "Updated Successfully"})
 
@@ -522,7 +527,7 @@ def delete_tour(id):
     db.session.delete(tour)
     db.session.commit()
 
-    return ({"Order": id, "message": "Deleted Successfully"})
+    return ({"Tour": id, "message": "Deleted Successfully"})
 
 # Create a itenirary_detail
 @app.route('/iteninary_detail', methods=['POST'])
