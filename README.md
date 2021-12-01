@@ -2,7 +2,7 @@
 
 ### Installing Modules
 ```bash
-pip install requirements.txt
+pip3 install requirements.txt
 ```
 
 ### Running the backend Server
